@@ -1,0 +1,24 @@
+{
+  "name": "distans_web",
+  "version": "1.0.0",
+  "description": "Backend of distans",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "server": "nodemon index.js"
+  },
+  "author": "Daniel Yoon",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bufferutil": "^4.0.8",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "mongodb": "^6.3.0",
+    "mongoose": "^8.0.1",
+    "nodemon": "^3.0.1"
+  }
+}
