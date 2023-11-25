@@ -3,20 +3,17 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    dateCreated: { type: Date, default: Date.now },
     role: { type: String, enum: ["User", "Admin"], default: "User" },
-    email: { type: String, required: true },
-    passwordHash: String,
-    verified: Date,
-    resetToken: {
-      token: String,
-      expires: Date,
-    },
-    nickname: String,
+    firstName: { type: String, require: true },
+    lastName: { type: String, require: true },
+    photo: String,
+    countryCode: { type: String, require: true },
+    phoneNumber: { type: Number, require: true },
+    birthday: { type: String, require: true },
   },
   {
     timestamps: true,
-    collections: "users",
+    collection: "users",
   }
 );
 
