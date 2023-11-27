@@ -27,14 +27,9 @@ async function loginWithPhoneNumber({ phoneNumber }) {
 async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
   const number = "+1" + phoneNumber;
 
-  console.log(number);
-  console.log(pinNumber);
-
   const result = await client.verify
     .services(SERVICE_ID)
     .verificationChecks.create({ to: number, code: pinNumber });
-
-  console.log(result.status);
 
   if (result.status === "approved") {
     const user = await db.User.findOne({ phoneNumber: phoneNumber });
@@ -108,6 +103,8 @@ async function loginWithTokens(params, ip) {
 }
 
 async function createAccount(params, ip) {
+  console.log(params);
+
   const isFirstUser =
     (await db.User.countDocuments({ verified: { $ne: null } })) === 0;
 
