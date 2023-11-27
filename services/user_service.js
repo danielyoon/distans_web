@@ -103,8 +103,6 @@ async function loginWithTokens(params, ip) {
 }
 
 async function createAccount(params, ip) {
-  console.log(params);
-
   const isFirstUser =
     (await db.User.countDocuments({ verified: { $ne: null } })) === 0;
 
