@@ -42,7 +42,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-cron.schedule("*/5 * * * *", scheduler);
+// cron.schedule("*/5 * * * *", scheduler);
 
 server.listen(port, () => {
   scheduler();
