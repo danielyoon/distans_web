@@ -1,7 +1,7 @@
 var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
-  { LOGIN, ROLE } = require("../components/enums"),
+  { LOGIN } = require("../components/enums"),
   userService = require("../services/user_service");
 
 router.post("/login-with-phone-number", loginWithPhoneNumber);
