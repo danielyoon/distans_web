@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/users", require("./controllers/user_controller"));
-app.use("/map", require("./controllers/map_controller"));
+// app.use("/map", require("./controllers/map_controller"));
 
 app.use(errorHandler);
 app.use(helmet());
