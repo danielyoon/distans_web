@@ -70,7 +70,11 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 }
 
 async function loginWithTokens(params, ip) {
+  console.log(params.token);
+
   const refreshToken = await getRefreshToken(params.token);
+  console.log(refreshToken);
+
   const user = refreshToken.user;
 
   if (refreshToken.isExpired) {
