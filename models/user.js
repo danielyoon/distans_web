@@ -4,12 +4,16 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
     role: { type: String, enum: ["User", "Admin"], default: "User" },
-    firstName: { type: String, require: true },
-    lastName: { type: String, require: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     photo: String,
-    countryCode: { type: String, require: true },
-    phoneNumber: { type: Number, require: true },
-    birthday: { type: String, require: true },
+    countryCode: { type: String, required: true },
+    phoneNumber: { type: Number, required: true },
+    birthday: { type: String, required: true },
+    isLocationAlwaysOn: Boolean,
+    currentLocation: String,
+    time: { type: Date, default: () => new Date(0) },
+    schemaVersion: { type: Number, default: 1 },
   },
   {
     timestamps: true,

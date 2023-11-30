@@ -10,4 +10,9 @@ const ROLE = {
   User: "User",
 };
 
-module.exports = { LOGIN, ROLE };
+const CHECK = {
+  IN: "IN",
+  OUT: "OUT",
+};
+
+module.exports = { LOGIN, ROLE, CHECK };

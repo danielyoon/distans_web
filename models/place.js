@@ -1,9 +1,6 @@
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema;
 
-//TODO: Add a chatroom here somehow...
-//TODO: Also add address
-//FIXME: Add schema version to update schema accordingly
 const schema = new Schema(
   {
     name: { type: String, required: true },
@@ -21,11 +18,12 @@ const schema = new Schema(
         type: [Number],
       },
     },
-    checkedInUsers: { type: Array, default: [] },
+    users: { type: Array, default: [] },
+    schemaVersion: { type: Number, default: 1 },
   },
   {
     timestamps: true,
-    collection: "markers",
+    collection: "places",
   }
 );
 

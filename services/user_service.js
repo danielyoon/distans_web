@@ -1,5 +1,6 @@
 var jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
+  { LOGIN, CHECK } = require("../components/enums"),
   sendEmail = require("../components/send_email"),
   client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN),
   SERVICE_ID = process.env.SERVICE_ID,
@@ -12,6 +13,8 @@ module.exports = {
   createAccount,
   logout,
   refreshToken,
+  checkIn,
+  checkOut,
 };
 
 async function loginWithPhoneNumber({ phoneNumber }) {
@@ -21,7 +24,7 @@ async function loginWithPhoneNumber({ phoneNumber }) {
     .services(SERVICE_ID)
     .verifications.create({ to: number, channel: "sms" });
 
-  return { status: result.status === "pending" ? "SUCCESS" : "WRONG" };
+  return { status: result.status === "pending" ? LOGIN.SUCCESS : LOGIN.WRONG };
 }
 
 async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
@@ -36,7 +39,7 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 
     if (!user) {
       return {
-        status: "NONEXISTENT",
+        status: LOGIN.NONEXISTENT,
         data: null,
       };
     }
@@ -49,7 +52,7 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
     const jwtToken = generateJwtToken(user);
 
     return {
-      status: "SUCCESS",
+      status: LOGIN.SUCCESS,
       data: {
         user: {
           id: user._id,
@@ -70,16 +73,13 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 }
 
 async function loginWithTokens(params, ip) {
-  console.log(params.token);
-
   const refreshToken = await getRefreshToken(params.token);
-  console.log(refreshToken);
 
   const user = refreshToken.user;
 
   if (refreshToken.isExpired) {
     return {
-      status: "EXPIRED",
+      status: LOGIN.EXPIRED,
       data: null,
     };
   }
@@ -92,7 +92,7 @@ async function loginWithTokens(params, ip) {
   const jwtToken = generateJwtToken(user);
 
   return {
-    status: "SUCCESS",
+    status: LOGIN.SUCCESS,
     data: {
       user: {
         id: user._id,
@@ -129,7 +129,7 @@ async function createAccount(params, ip) {
   const jwtToken = generateJwtToken(user);
 
   return {
-    status: "SUCCESS",
+    status: LOGIN.SUCCESS,
     data: {
       user: {
         id: user._id,
@@ -153,7 +153,7 @@ async function logout(params) {
 
   if (refreshToken.isExpired) {
     return {
-      status: "EXPIRED",
+      status: LOGIN.EXPIRED,
       data: null,
     };
   }
@@ -161,7 +161,7 @@ async function logout(params) {
   await db.RefreshToken.findOneAndDelete({ user: user.id });
 
   return {
-    status: "SUCCESS",
+    status: LOGIN.SUCCESS,
   };
 }
 
@@ -171,7 +171,7 @@ async function refreshToken(params, ip) {
 
   if (refreshToken.isExpired) {
     return {
-      status: "EXPIRED",
+      status: LOGIN.EXPIRED,
       data: null,
     };
   }
@@ -184,12 +184,90 @@ async function refreshToken(params, ip) {
   const jwtToken = generateJwtToken(user);
 
   return {
-    status: "SUCCESS",
+    status: LOGIN.SUCCESS,
     data: {
       refreshToken: newRefreshToken.token,
       jwtToken,
     },
   };
+}
+
+async function checkIn(userId, params) {
+  try {
+    const user = await db.User.findById(userId);
+    const newPlace = await findNearbyPlace(params.longitude, params.latitude);
+
+    if (!newPlace) {
+      // Handle case where no nearby place is found
+      await checkOut(userId);
+      return { status: CHECK.OUT };
+    }
+
+    let checkedInTime = new Date();
+
+    if (
+      user.currentLocation &&
+      user.currentLocation.toString() === newPlace._id.toString()
+    ) {
+      console.log("User already checked in at the location");
+      // Find the user in the checkedInUsers array
+      const userIndex = newPlace.users.findIndex(
+        (checkedInUser) => checkedInUser.user.toString() === user._id.toString()
+      );
+
+      if (userIndex !== -1) {
+        // Update the check-in time for this user
+        newPlace.users[userIndex].checkedInTime = new Date();
+        await newPlace.save();
+      }
+    } else {
+      // Check out from the previous location if different
+      if (user.currentLocation) {
+        await checkOut(userId);
+      }
+
+      // Check in to the new place
+      newPlace.users.push({ user: user._id, checkedInTime });
+      await newPlace.save();
+
+      user.currentLocation = newPlace._id;
+      user.time = checkedInTime;
+      await user.save();
+
+      console.log("User checked in successfully");
+    }
+
+    return {
+      status: CHECK.IN,
+      data: {
+        placeId: newPlace._id,
+        checkedInTime: checkedInTime,
+      },
+    };
+  } catch (error) {
+    console.error("Check-in error:", error);
+    return { status: "ERROR" };
+  }
+}
+
+async function checkOut(userId) {
+  const user = await db.User.findById(userId);
+  if (!user || !user.currentLocation) {
+    return { status: CHECK.OUT }; // User is not checked in anywhere
+  }
+
+  const currentPlace = await db.Place.findById(user.currentLocation);
+  if (currentPlace) {
+    // Remove user from the current place's checked-in users
+    currentPlace.users = currentPlace.users.filter(
+      (u) => u.user.toString() !== userId.toString()
+    );
+    await currentPlace.save();
+  }
+
+  // Reset user's current location
+  user.currentLocation = null;
+  await user.save();
 }
 
 function generateJwtToken(user) {
@@ -218,4 +296,15 @@ async function getRefreshToken(token) {
 
 function randomTokenString(number) {
   return crypto.randomBytes(number).toString("hex");
+}
+
+async function findNearbyPlace(longitude, latitude) {
+  const geoQuery = {
+    location: {
+      $geoWithin: {
+        $centerSphere: [[longitude, latitude], 0.0155262 / 3963.2],
+      },
+    },
+  };
+  return await db.Place.findOne(geoQuery);
 }

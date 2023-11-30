@@ -1,7 +1,7 @@
 var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
-  { LOGIN } = require("../components/enums"),
+  { LOGIN, CHECK } = require("../components/enums"),
   userService = require("../services/user_service");
 
 router.post("/login-with-phone-number", loginWithPhoneNumber);
@@ -10,6 +10,8 @@ router.post("/login-with-token", loginWithTokens);
 router.post("/create-account", createAccount);
 router.post("/logout", authorize(), logout);
 router.post("/refresh-token", refreshToken);
+router.post("/check-in", authorize(), checkIn);
+router.post("/check-out", authorize(), checkOut);
 
 module.exports = router;
 
@@ -88,6 +90,32 @@ function refreshToken(req, res, next) {
         res.json(result.data);
       } else {
         res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function checkIn(req, res, next) {
+  userService
+    .checkIn(req.auth.ip, req.body)
+    .then((result) => {
+      if (result.status === CHECK.IN) {
+        res.json(result.data);
+      } else {
+        res.status(404).send("No place exists");
+      }
+    })
+    .catch(next);
+}
+
+function checkOut(req, res, next) {
+  userService
+    .checkOut(req.body)
+    .then((result) => {
+      if (result.status === CHECK.OUT) {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
       }
     })
     .catch(next);
