@@ -200,6 +200,7 @@ async function checkIn(userId, params) {
 
     if (!newPlace) {
       // Handle case where no nearby place is found
+      console.log("A location doesn't exist");
       await checkOut(userId);
       return { status: CHECK.OUT };
     }
