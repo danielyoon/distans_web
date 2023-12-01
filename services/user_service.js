@@ -283,7 +283,7 @@ function generateRefreshToken(user, ipAddress) {
   return new db.RefreshToken({
     user: user.id,
     token: randomTokenString(40),
-    expires: new Date(Date.now() + 2 * 24 * 60 * 1000),
+    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     createdByIp: ipAddress,
   });
 }
