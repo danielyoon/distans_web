@@ -96,6 +96,8 @@ function refreshToken(req, res, next) {
 }
 
 function checkIn(req, res, next) {
+  console.log(req.auth.admin);
+
   userService
     .checkIn(req.auth.admin, req.body)
     .then((result) => {
