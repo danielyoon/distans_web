@@ -10,7 +10,7 @@ module.exports = router;
 
 function createPlace(req, res, next) {
   mapService
-    .createPlace(req.auth.admin, req.body)
+    .createPlace(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.sendStatus(200);
