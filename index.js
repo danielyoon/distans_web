@@ -43,7 +43,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.set("trust proxy", 1);
 
-// cron.schedule("*/5 * * * *", scheduler);
+cron.schedule("*/5 * * * *", scheduler);
 
 server.listen(port, () => {
   scheduler();
