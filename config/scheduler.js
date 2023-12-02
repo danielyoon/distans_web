@@ -7,7 +7,7 @@ async function scheduler() {
 
   const places = await db.Place.find({}, "users").populate(
     "users",
-    "checkedInTime isLocationAlwaysOn"
+    "time isLocationAlwaysOn"
   );
 
   let usersToUpdate = [];
@@ -16,7 +16,7 @@ async function scheduler() {
   for (const place of places) {
     for (const user of place.users) {
       const minutesSinceCheckedIn = Math.floor(
-        Math.abs(currentTime - user.checkedInTime) / 1000 / 60
+        Math.abs(currentTime - user.time) / 1000 / 60
       );
 
       let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;

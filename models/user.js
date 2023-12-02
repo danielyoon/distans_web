@@ -10,7 +10,7 @@ const schema = new Schema(
     countryCode: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
     birthday: { type: String, required: true },
-    isLocationAlwaysOn: Boolean,
+    isLocationAlwaysOn: { type: Boolean, default: false },
     currentLocation: String,
     time: { type: Date, default: () => new Date(0) },
     schemaVersion: { type: Number, default: 1 },
