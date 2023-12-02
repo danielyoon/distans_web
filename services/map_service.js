@@ -2,6 +2,7 @@ var db = require("../components/mongo.js");
 
 module.exports = {
   createPlace,
+  getNearbyPlaces,
 };
 
 async function createPlace(id, params) {
@@ -18,4 +19,25 @@ async function createPlace(id, params) {
   await place.save();
 
   return { status: "SUCCESS" };
+}
+
+async function getNearbyPlaces(params) {
+  const geoQuery = {
+    location: {
+      $geoWithin: {
+        $centerSphere: [
+          [params.longitude, params.latitude],
+          0.0155262 / 3963.2,
+        ],
+      },
+    },
+    approved: true,
+  };
+
+  let nearbyPlaces = await db.Place.find(geoQuery);
+
+  return {
+    status: "SUCCESS",
+    data: nearbyPlaces,
+  };
 }
