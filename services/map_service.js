@@ -3,6 +3,7 @@ var db = require("../components/mongo.js");
 module.exports = {
   createPlace,
   getNearbyPlaces,
+  getPlaceData,
 };
 
 async function createPlace(id, params) {
@@ -40,4 +41,10 @@ async function getNearbyPlaces(params) {
     status: "SUCCESS",
     data: nearbyPlaces,
   };
+}
+
+async function getPlaceData(params) {
+  const placeData = await db.Place.findById(params.id);
+
+  return { status: "SUCCESS", data: placeData };
 }
