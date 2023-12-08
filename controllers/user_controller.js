@@ -8,6 +8,7 @@ router.post("/login-with-phone-number", loginWithPhoneNumber);
 router.post("/verify-pin-number", verifyPinNumber);
 router.post("/login-with-token", loginWithTokens);
 router.post("/create-account", createAccount);
+router.post("/update-user-permission", authorize(), updateUserPermission);
 router.post("/logout", authorize(), logout);
 router.post("/refresh-token", refreshToken);
 router.post("/check-in", authorize(), checkIn);
@@ -62,6 +63,19 @@ function createAccount(req, res, next) {
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         res.json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function updateUserPermission(req, res, next) {
+  userService
+    .updateUserPermission(req.auth.id, req.body)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.sendStatus(200);
       } else {
         res.sendStatus(404);
       }

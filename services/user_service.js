@@ -11,6 +11,7 @@ module.exports = {
   verifyPinNumber,
   loginWithTokens,
   createAccount,
+  updateUserPermission,
   logout,
   refreshToken,
   checkIn,
@@ -145,6 +146,15 @@ async function createAccount(params, ip) {
       jwtToken,
     },
   };
+}
+
+async function updateUserPermission(id, params) {
+  const user = await db.User.findById(id);
+
+  Object.assign(user, params);
+  await user.save();
+
+  return { status: "SUCCESS" };
 }
 
 async function logout(params) {
