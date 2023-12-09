@@ -85,7 +85,7 @@ function updateUserPermission(req, res, next) {
 
 function logout(req, res, next) {
   userService
-    .logout(req.body)
+    .logout(req.auth.id, req.body)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         res.sendStatus(200);
@@ -124,7 +124,7 @@ function checkIn(req, res, next) {
 
 function checkOut(req, res, next) {
   userService
-    .checkOut(req.body)
+    .checkOut(req.auth.id)
     .then((result) => {
       if (result.status === CHECK.OUT) {
         res.sendStatus(200);
