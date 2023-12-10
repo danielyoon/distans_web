@@ -274,7 +274,9 @@ async function checkIn(userId, params) {
 }
 
 async function checkOut(userId) {
+  console.log(userId);
   const user = await db.User.findById(userId);
+  console.log(user);
   if (!user || !user.currentLocation) {
     return { status: CHECK.OUT }; // User is not checked in anywhere
   }
