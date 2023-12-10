@@ -13,6 +13,7 @@ module.exports = {
   createAccount,
   updateUserPermission,
   logout,
+  deleteAccount,
   refreshToken,
   checkIn,
   checkOut,
@@ -173,6 +174,12 @@ async function logout(params) {
   return {
     status: LOGIN.SUCCESS,
   };
+}
+
+async function deleteAccount(id) {
+  await db.User.deleteOne({ _id: id });
+
+  return { status: "SUCCESS" };
 }
 
 async function refreshToken(params, ip) {
