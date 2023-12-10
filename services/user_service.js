@@ -274,16 +274,14 @@ async function checkIn(userId, params) {
 }
 
 async function checkOut(userId) {
-  console.log(userId);
   const user = await db.User.findById(userId);
-  console.log(user);
   if (!user || !user.currentLocation) {
     return { status: CHECK.OUT }; // User is not checked in anywhere
   }
 
   const currentPlace = await db.Place.findById(user.currentLocation);
   if (currentPlace) {
-    // Remove user from the current place's checked-in users
+    // Remove the user from the current place's checked-in users
     currentPlace.users = currentPlace.users.filter(
       (u) => u.user.toString() !== userId.toString()
     );
