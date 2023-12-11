@@ -250,7 +250,7 @@ async function checkIn(userId, params) {
       }
 
       // Check in to the new place
-      newPlace.users.push({ user: user._id, checkedInTime });
+      newPlace.users.push({ user: user._id.toString(), checkedInTime });
       await newPlace.save();
 
       user.currentLocation = newPlace._id;
@@ -276,21 +276,16 @@ async function checkIn(userId, params) {
 async function checkOut(userId) {
   try {
     // Find the user and check if they are checked in somewhere
-    console.log(userId);
     const user = await db.User.findById(userId);
     if (!user || !user.currentLocation) {
       return { status: CHECK.OUT }; // User is not checked in anywhere
     }
 
-    console.log(user.currentLocation);
-
     // Update the Place/Marker document: remove the user from the checked-in users
-    const updateResult = await db.Place.updateOne(
+    await db.Place.updateOne(
       { _id: user.currentLocation },
       { $pull: { users: { user: userId } } }
     );
-
-    console.log(`Update result:`, updateResult);
 
     // Update the User document: reset currentLocation and recentCheckedIn
     await db.User.updateOne(
