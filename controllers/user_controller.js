@@ -113,7 +113,7 @@ function deleteAccount(req, res, next) {
 
 function contactUs(req, res, next) {
   userService
-    .deleteAccount(req.auth.id, req.body)
+    .contactUs(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.sendStatus(200);
