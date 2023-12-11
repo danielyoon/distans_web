@@ -276,10 +276,13 @@ async function checkIn(userId, params) {
 async function checkOut(userId) {
   try {
     // Find the user and check if they are checked in somewhere
+    console.log(userId);
     const user = await db.User.findById(userId);
     if (!user || !user.currentLocation) {
-      return { status: "CHECK_OUT" }; // User is not checked in anywhere
+      return { status: CHECK.OUT }; // User is not checked in anywhere
     }
+
+    console.log(user.currentLocation);
 
     // Update the Place/Marker document: remove the user from the checked-in users
     await db.Place.updateOne(
@@ -298,7 +301,7 @@ async function checkOut(userId) {
       }
     );
 
-    return { status: "SUCCESS" };
+    return { status: CHECK.OUT };
   } catch (error) {
     console.error("Error in checkOut function:", error);
     return { status: "ERROR", message: error.message };
