@@ -274,23 +274,35 @@ async function checkIn(userId, params) {
 }
 
 async function checkOut(userId) {
-  const user = await db.User.findById(userId);
-  if (!user || !user.currentLocation) {
-    return { status: CHECK.OUT }; // User is not checked in anywhere
-  }
+  try {
+    // Find the user and check if they are checked in somewhere
+    const user = await db.User.findById(userId);
+    if (!user || !user.currentLocation) {
+      return { status: "CHECK_OUT" }; // User is not checked in anywhere
+    }
 
-  const currentPlace = await db.Place.findById(user.currentLocation);
-  if (currentPlace) {
-    // Remove the user from the current place's checked-in users
-    currentPlace.users = currentPlace.users.filter(
-      (u) => u.user.toString() !== userId.toString()
+    // Update the Place/Marker document: remove the user from the checked-in users
+    await db.Place.updateOne(
+      { _id: user.currentLocation },
+      { $pull: { users: { user: userId } } }
     );
-    await currentPlace.save();
-  }
 
-  // Reset user's current location
-  user.currentLocation = null;
-  await user.save();
+    // Update the User document: reset currentLocation and recentCheckedIn
+    await db.User.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          currentLocation: "",
+          recentCheckedIn: new Date(0),
+        },
+      }
+    );
+
+    return { status: "SUCCESS" };
+  } catch (error) {
+    console.error("Error in checkOut function:", error);
+    return { status: "ERROR", message: error.message };
+  }
 }
 
 function generateJwtToken(user) {
