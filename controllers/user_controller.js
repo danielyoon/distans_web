@@ -11,6 +11,7 @@ router.post("/create-account", createAccount);
 router.post("/update-user-permission", authorize(), updateUserPermission);
 router.post("/logout", authorize(), logout);
 router.post("/delete-account", authorize(), deleteAccount);
+router.post("/contact-us", authorize(), contactUs);
 router.post("/refresh-token", refreshToken);
 router.post("/check-in", authorize(), checkIn);
 router.post("/check-out", authorize(), checkOut);
@@ -98,6 +99,19 @@ function logout(req, res, next) {
 }
 
 function deleteAccount(req, res, next) {
+  userService
+    .deleteAccount(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function contactUs(req, res, next) {
   userService
     .deleteAccount(req.auth.id, req.body)
     .then((result) => {

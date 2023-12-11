@@ -14,6 +14,7 @@ module.exports = {
   updateUserPermission,
   logout,
   deleteAccount,
+  contactUs,
   refreshToken,
   checkIn,
   checkOut,
@@ -182,6 +183,12 @@ async function deleteAccount(id) {
   return { status: "SUCCESS" };
 }
 
+async function contactUs(id, params) {
+  sendUserComments(id, params.email, params.description);
+
+  return { status: "SUCCESS" };
+}
+
 async function refreshToken(params, ip) {
   const refreshToken = await getRefreshToken(params.token);
   const user = refreshToken.user;
@@ -342,4 +349,12 @@ async function findNearbyPlace(longitude, latitude) {
     },
   };
   return await db.Place.findOne(geoQuery);
+}
+
+async function sendUserComments(id, email, comments) {
+  await sendEmail({
+    to: email,
+    subject: "User Comments",
+    html: `<h3>User Comments</h3><br><p>${comments} sent by ${id}</p>`,
+  });
 }
