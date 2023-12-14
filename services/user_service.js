@@ -184,7 +184,6 @@ async function deleteAccount(id) {
 }
 
 async function contactUs(id, params) {
-  console.log(params);
   sendUserComments(id, params.email, params.description);
 
   return { status: "SUCCESS" };
@@ -352,11 +351,8 @@ async function findNearbyPlace(longitude, latitude) {
   return await db.Place.findOne(geoQuery);
 }
 
+//TODO: Make a more readable HTML structure
 async function sendUserComments(id, email, comments) {
-  console.log(
-    "<h3>User Comments</h3><br><p>${comments} sent by <br>${id} with email ${email}</p>"
-  );
-
   await sendEmail({
     to: "daniel@distans.app",
     subject: "User Comments",
