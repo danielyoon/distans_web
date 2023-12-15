@@ -344,7 +344,7 @@ async function findNearbyPlace(longitude, latitude) {
   const geoQuery = {
     location: {
       $geoWithin: {
-        $centerSphere: [[longitude, latitude], 0.0155262 / 3963.2],
+        $centerSphere: [[longitude, latitude], 5.73e-6],
       },
     },
   };
