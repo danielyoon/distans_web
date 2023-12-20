@@ -13,9 +13,12 @@ async function scheduler() {
 
     for (const place of places) {
       for (const user of place.users) {
+        console.log(user.checkedInTime);
         const minutesSinceCheckedIn = Math.floor(
-          Math.abs(currentTime - user.time) / 1000 / 60
+          Math.abs(currentTime - user.checkedInTime) / 1000 / 60
         );
+
+        console.log(minutesSinceCheckedIn);
 
         let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
 
