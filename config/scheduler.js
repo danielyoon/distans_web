@@ -23,7 +23,7 @@ async function scheduler() {
         let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
 
         if (minutesSinceCheckedIn > checkoutTime) {
-          print(user.user);
+          console.log(user.user);
           usersToUpdate.push(user.user);
           markersToUpdate.push(place._id);
         }
