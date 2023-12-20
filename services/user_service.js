@@ -251,6 +251,8 @@ async function checkIn(userId, params) {
         console.log(newPlace.users[userIndex].checkedInTime);
         newPlace.users[userIndex].checkedInTime = new Date();
         console.log(newPlace.users[userIndex].checkedInTime);
+
+        newPlace.markModified("users");
         await newPlace.save();
       }
     } else {
