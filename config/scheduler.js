@@ -41,7 +41,7 @@ async function scheduler() {
         }
       );
 
-      await db.Marker.updateMany(
+      await db.Place.updateMany(
         { _id: { $in: markersToUpdate } },
         {
           $pull: { users: { user: { $in: usersToUpdate } } },
