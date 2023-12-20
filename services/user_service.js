@@ -246,6 +246,8 @@ async function checkIn(userId, params) {
         (checkedInUser) => checkedInUser.user.toString() === user._id.toString()
       );
 
+      console.log(userIndex);
+
       if (userIndex !== -1) {
         // Update the check-in time for this user
         newPlace.users[userIndex].checkedInTime = new Date();
