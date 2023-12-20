@@ -6,10 +6,9 @@ async function scheduler() {
   try {
     const currentTime = new Date();
 
-    const places = await db.Place.find({}, "users").populate(
-      "users",
-      "time isLocationAlwaysOn"
-    );
+    const places = await db.Place.find({}, "users").populate("users");
+
+    console.log(places);
 
     let usersToUpdate = [];
     let markersToUpdate = [];

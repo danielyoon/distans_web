@@ -234,6 +234,7 @@ async function checkIn(userId, params) {
     }
 
     let checkedInTime = new Date();
+    let isLocationAlwaysOn = user.isLocationAlwaysOn;
 
     if (
       user.currentLocation &&
@@ -257,7 +258,11 @@ async function checkIn(userId, params) {
       }
 
       // Check in to the new place
-      newPlace.users.push({ user: user._id.toString(), checkedInTime });
+      newPlace.users.push({
+        user: user._id.toString(),
+        checkedInTime,
+        isLocationAlwaysOn,
+      });
       await newPlace.save();
 
       user.currentLocation = newPlace._id;
