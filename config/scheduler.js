@@ -8,13 +8,12 @@ async function scheduler() {
 
     const places = await db.Place.find({}, "users").populate("users");
 
-    console.log(places);
-
     let usersToUpdate = [];
     let markersToUpdate = [];
 
     for (const place of places) {
       for (const user of place.users) {
+        console.log(user);
         const minutesSinceCheckedIn = Math.floor(
           Math.abs(currentTime - user.time) / 1000 / 60
         );
