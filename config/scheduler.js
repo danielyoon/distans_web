@@ -13,7 +13,6 @@ async function scheduler() {
 
     for (const place of places) {
       for (const user of place.users) {
-        console.log(user);
         const minutesSinceCheckedIn = Math.floor(
           Math.abs(currentTime - user.time) / 1000 / 60
         );
@@ -21,6 +20,7 @@ async function scheduler() {
         let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
 
         if (minutesSinceCheckedIn > checkoutTime) {
+          print(user.user);
           usersToUpdate.push(user.user);
           markersToUpdate.push(place._id);
         }
