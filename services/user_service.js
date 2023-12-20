@@ -248,10 +248,7 @@ async function checkIn(userId, params) {
 
       if (userIndex !== -1) {
         // Update the check-in time for this user
-        console.log(newPlace.users[userIndex].checkedInTime);
         newPlace.users[userIndex].checkedInTime = new Date();
-        console.log(newPlace.users[userIndex].checkedInTime);
-
         newPlace.markModified("users");
         await newPlace.save();
       }
