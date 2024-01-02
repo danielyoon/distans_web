@@ -1,17 +1,18 @@
 const express = require("express"),
   app = express(),
+  helmet = require("helmet"),
+  morgan = require("morgan"),
   cookieParser = require("cookie-parser"),
   cors = require("cors"),
   cron = require("node-cron"),
   errorHandler = require("./config/error_handler"),
   scheduler = require("./config/scheduler"),
-  helmet = require("helmet"),
   rateLimit = require("express-rate-limit"),
-  morgan = require("morgan"),
+  path = require("path"),
   server = require("http").createServer(app),
   port = process.env.PORT || 5000;
 
-var environment = process.env.NODE_ENV || "development";
+const environment = process.env.NODE_ENV || "development";
 
 if (environment == "development") require("dotenv").config({ silent: true });
 
@@ -26,6 +27,11 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, "public")));
+app.get("*", function (request, response) {
+  response.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 app.use("/users", require("./controllers/user_controller"));
 app.use("/maps", require("./controllers/map_controller"));
