@@ -18,6 +18,7 @@ module.exports = {
   refreshToken,
   checkIn,
   checkOut,
+  testLogin,
 };
 
 async function loginWithPhoneNumber({ phoneNumber }) {
@@ -316,6 +317,43 @@ async function checkOut(userId) {
     console.error("Error in checkOut function:", error);
     return { status: "ERROR", message: error.message };
   }
+}
+
+async function testLogin(ip) {
+  const user = await db.User.findOne({ phoneNumber: "5553478267" });
+
+  if (!user) {
+    return {
+      status: LOGIN.NONEXISTENT,
+      data: null,
+    };
+  }
+
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+  const newRefreshToken = generateRefreshToken(user, ip);
+  await newRefreshToken.save();
+
+  const jwtToken = generateJwtToken(user);
+
+  return {
+    status: LOGIN.SUCCESS,
+    data: {
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        photo: user.photo,
+        countryCode: user.countryCode,
+        phoneNumber: user.phoneNumber,
+        birthday: user.birthday,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+      refreshToken: newRefreshToken.token,
+      jwtToken,
+    },
+  };
 }
 
 function generateJwtToken(user) {

@@ -16,6 +16,8 @@ router.post("/refresh-token", refreshToken);
 router.post("/check-in", authorize(), checkIn);
 router.post("/check-out", authorize(), checkOut);
 
+router.post("/test-login", testLogin);
+
 module.exports = router;
 
 function loginWithPhoneNumber(req, res, next) {
@@ -158,6 +160,19 @@ function checkOut(req, res, next) {
         res.sendStatus(200);
       } else {
         res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function testLogin(req, res, next) {
+  userService
+    .testLogin(req.ip)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.json(result.data);
+      } else {
+        res.sendStatus(401);
       }
     })
     .catch(next);
