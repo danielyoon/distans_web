@@ -16,6 +16,18 @@ const environment = process.env.NODE_ENV || "development";
 
 if (environment == "development") require("dotenv").config({ silent: true });
 
+app.use(helmet());
+app.use(morgan("dev"));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 250,
+  message: "Too many requests, please try again later",
+});
+
+app.use(limiter);
+app.set("trust proxy", 1);
+
 app.use(cookieParser());
 
 app.use(
@@ -37,17 +49,6 @@ app.use("/users", require("./controllers/user_controller"));
 app.use("/maps", require("./controllers/map_controller"));
 
 app.use(errorHandler);
-app.use(helmet());
-app.use(morgan("dev"));
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 250,
-  message: "Too many requests, please try again later",
-});
-
-app.use(limiter);
-app.set("trust proxy", 1);
 
 cron.schedule("*/5 * * * *", scheduler);
 
