@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "public")));
-app.get("*", function (request, response) {
+app.get("*", function (req, res) {
   response.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
