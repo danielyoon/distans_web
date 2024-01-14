@@ -33,8 +33,10 @@ async function loginWithEmail(params, ip) {
     };
   }
 
+  console.log("User exist!");
+
   if (
-    !user.role === ROLE.Admin ||
+    !user.role === "Admin" ||
     bcrypt.compareSync(password, user.passwordHash)
   ) {
     return {
