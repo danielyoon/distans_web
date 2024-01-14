@@ -1,12 +1,12 @@
 var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
-  { LOGIN, ROLE } = require("../components/enums"),
+  { LOGIN, ROLE, TOKEN } = require("../components/enums"),
   adminService = require("../services/admin_service");
 
 router.post("/create-account", authorize(ROLE.Admin), createAccount);
 router.post("/login-with-email", loginWithEmail);
-// router.post("/refresh-token", refreshToken);
+router.get("/refresh-token", refreshToken);
 
 module.exports = router;
 
@@ -28,6 +28,21 @@ function loginWithEmail(req, res, next) {
     .loginWithEmail(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
+        setTokenCookie(res, result.refreshToken);
+        res.json({ user: result.data.user, token: result.jwtToken });
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function refreshToken(req, res, next) {
+  const token = req.cookies.refreshToken;
+  adminService
+    .refreshToken(token)
+    .then(() => {
+      if (result.status === TOKEN.NEW) {
         setTokenCookie(res, result.refreshToken);
         res.json({ user: result.data.user, token: result.jwtToken });
       } else {

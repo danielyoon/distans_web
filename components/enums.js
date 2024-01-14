@@ -10,9 +10,14 @@ const ROLE = {
   User: "User",
 };
 
+const TOKEN = {
+  NEW: "NEW",
+  EXPIRED: "EXPIRED",
+};
+
 const CHECK = {
   IN: "IN",
   OUT: "OUT",
 };
 
-module.exports = { LOGIN, ROLE, CHECK };
+module.exports = { LOGIN, ROLE, CHECK, TOKEN };

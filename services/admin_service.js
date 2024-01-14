@@ -1,10 +1,10 @@
 var jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
   bcrypt = require("bcryptjs"),
-  { LOGIN, ROLE } = require("../components/enums"),
+  { LOGIN, ROLE, TOKEN } = require("../components/enums"),
   db = require("../components/mongo.js");
 
-module.exports = { createAccount, loginWithEmail };
+module.exports = { createAccount, loginWithEmail, refreshToken };
 
 async function createAccount(params) {
   const user = await db.User.findOne({ phoneNumber: params.phoneNumber });
@@ -60,6 +60,38 @@ async function loginWithEmail(params, ip) {
     refreshToken: newRefreshToken.token,
     jwtToken,
   };
+}
+
+async function refreshToken(token) {
+  const refreshToken = getRefreshToken(token);
+  const user = refreshToken.user;
+
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+  const newRefreshToken = generateRefreshToken(user, ip);
+  await newRefreshToken.save();
+
+  const jwtToken = generateJwtToken(user);
+
+  return {
+    status: TOKEN.NEW,
+    data: {
+      user: {
+        id: user._id,
+        email: user.email,
+      },
+      refreshToken: newRefreshToken.token,
+      jwtToken,
+    },
+  };
+}
+
+async function getRefreshToken(token) {
+  const refreshToken = await db.RefreshToken.findOne({ token }).populate(
+    "account"
+  );
+  if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
+  return refreshToken;
 }
 
 function generateJwtToken(user) {
