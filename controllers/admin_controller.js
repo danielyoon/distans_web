@@ -1,10 +1,10 @@
 var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
-  { LOGIN } = require("../components/enums"),
+  { LOGIN, ROLE } = require("../components/enums"),
   adminService = require("../services/admin_service");
 
-router.post("/create-account", createAccount);
+router.post("/create-account", authorize(ROLE.Admin), createAccount);
 router.post("/login-with-email", loginWithEmail);
 // router.post("/refresh-token", refreshToken);
 
