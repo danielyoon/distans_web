@@ -35,8 +35,10 @@ async function loginWithEmail(params, ip) {
 
   console.log("User exist!");
 
+  console.log(bcrypt.compareSync(password, user.passwordHash));
+
   if (
-    !user.role === "Admin" ||
+    user.role !== ROLE.Admin ||
     bcrypt.compareSync(password, user.passwordHash)
   ) {
     return {
