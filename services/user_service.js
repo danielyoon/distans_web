@@ -81,13 +81,6 @@ async function loginWithTokens(params, ip) {
 
   const user = refreshToken.user;
 
-  if (refreshToken.isExpired) {
-    return {
-      status: LOGIN.EXPIRED,
-      data: null,
-    };
-  }
-
   await db.RefreshToken.findOneAndDelete({ user: user.id });
 
   const newRefreshToken = generateRefreshToken(user, ip);
@@ -193,13 +186,6 @@ async function contactUs(id, params) {
 async function refreshToken(params, ip) {
   const refreshToken = await getRefreshToken(params.token);
   const user = refreshToken.user;
-
-  if (refreshToken.isExpired) {
-    return {
-      status: LOGIN.EXPIRED,
-      data: null,
-    };
-  }
 
   await db.RefreshToken.findOneAndDelete({ user: user.id });
 
@@ -358,7 +344,7 @@ async function testLogin(ip) {
 
 function generateJwtToken(user) {
   return jwt.sign({ sub: user.id, id: user.id }, process.env.SECRET_OR_KEY, {
-    expiresIn: "24h",
+    expiresIn: "1h",
   });
 }
 

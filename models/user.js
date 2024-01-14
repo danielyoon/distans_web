@@ -13,6 +13,8 @@ const schema = new Schema(
     isLocationAlwaysOn: { type: Boolean, default: false },
     currentLocation: String,
     time: { type: Date, default: () => new Date(0) },
+    email: String,
+    password: String,
     schemaVersion: { type: Number, default: 1 },
   },
   {

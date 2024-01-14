@@ -47,6 +47,7 @@ app.get("/", function (req, res) {
 
 app.use("/users", require("./controllers/user_controller"));
 app.use("/maps", require("./controllers/map_controller"));
+app.use("/admin", require("./controllers/admin_controller"));
 
 app.use(errorHandler);
 
