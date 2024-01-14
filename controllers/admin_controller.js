@@ -28,10 +28,6 @@ function loginWithEmail(req, res, next) {
     .loginWithEmail(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
-        console.log("TESTING");
-        console.log(result);
-        console.log("------------");
-        console.log(result.refreshToken);
         setTokenCookie(res, result.refreshToken);
         res.json({ user: result.data.user, token: result.jwtToken });
       } else {
