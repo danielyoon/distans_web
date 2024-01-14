@@ -35,7 +35,7 @@ async function loginWithEmail(params, ip) {
 
   if (
     !user.role === ROLE.Admin ||
-    bcrypt.compareSync(password, user.password)
+    bcrypt.compareSync(password, user.passwordHash)
   ) {
     return {
       status: LOGIN.WRONG,
