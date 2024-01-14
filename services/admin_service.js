@@ -25,11 +25,7 @@ async function createAccount(params) {
 
 async function loginWithEmail(params, ip) {
   const { email, password } = params;
-
-  console.log(email);
   const user = await db.User.findOne({ email: email });
-
-  console.log(user);
 
   if (!user) {
     return {
@@ -52,6 +48,10 @@ async function loginWithEmail(params, ip) {
   await newRefreshToken.save();
 
   const jwtToken = generateJwtToken(user);
+
+  console.log(user);
+  console.log(newRefreshToken.token);
+  console.log(jwtToken);
 
   return {
     status: LOGIN.SUCCESS,

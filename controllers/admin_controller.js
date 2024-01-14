@@ -12,7 +12,7 @@ module.exports = router;
 
 function createAccount(req, res, next) {
   adminService
-    .createAccount(req.body, req.ip)
+    .createAccount(req.body)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         res.sendStatus(200);
@@ -28,6 +28,10 @@ function loginWithEmail(req, res, next) {
     .loginWithEmail(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
+        console.log("TESTING");
+        console.log(result);
+        console.log("------------");
+        console.log(result.refreshToken);
         setTokenCookie(res, result.refreshToken);
         res.json({ user: result.data.user, token: result.jwtToken });
       } else {
