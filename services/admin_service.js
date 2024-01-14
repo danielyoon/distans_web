@@ -33,33 +33,21 @@ async function loginWithEmail(params, ip) {
     };
   }
 
-  console.log(user);
-
-  console.log(user.role !== ROLE.Admin);
-  console.log(bcrypt.compareSync(password, user.passwordHash));
-
   if (
-    user.role !== ROLE.Admin ||
-    bcrypt.compareSync(password, user.passwordHash)
+    user.role !== ROLE.Admin &&
+    !bcrypt.compareSync(password, user.passwordHash)
   ) {
     return {
       status: LOGIN.WRONG,
     };
   }
 
-  console.log(ip);
-  try {
-    await db.RefreshToken.findOneAndDelete({ user: user.id });
-  } catch (e) {
-    console.log(e);
-  }
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
-  console.log(newRefreshToken.token);
 
   const jwtToken = generateJwtToken(user);
-  console.log(jwtToken);
 
   return {
     status: LOGIN.SUCCESS,
