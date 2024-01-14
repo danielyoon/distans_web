@@ -10,7 +10,7 @@ router.post("/login-with-email", loginWithEmail);
 
 module.exports = router;
 
-function createAccount(req, res) {
+function createAccount(req, res, next) {
   adminService
     .createAccount(req.body, req.ip)
     .then((result) => {
