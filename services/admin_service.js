@@ -33,7 +33,7 @@ async function loginWithEmail(params, ip) {
     };
   }
 
-  console.log("User exist!");
+  console.log(user);
 
   console.log(user.role !== ROLE.Admin);
   console.log(bcrypt.compareSync(password, user.passwordHash));
