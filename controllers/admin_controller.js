@@ -40,7 +40,7 @@ function loginWithEmail(req, res, next) {
 function refreshToken(req, res, next) {
   const token = req.cookies.refreshToken;
   adminService
-    .refreshToken(token)
+    .refreshToken(token, req.ip)
     .then(() => {
       if (result.status === TOKEN.NEW) {
         setTokenCookie(res, result.refreshToken);

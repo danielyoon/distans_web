@@ -62,7 +62,7 @@ async function loginWithEmail(params, ip) {
   };
 }
 
-async function refreshToken(token) {
+async function refreshToken(token, ip) {
   const refreshToken = getRefreshToken(token);
   const user = refreshToken.user;
 
