@@ -42,15 +42,18 @@ async function loginWithEmail(params, ip) {
     };
   }
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
+  console.log(ip);
+  try {
+    await db.RefreshToken.findOneAndDelete({ user: user.id });
+  } catch (e) {
+    console.log(e);
+  }
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
+  console.log(newRefreshToken.token);
 
   const jwtToken = generateJwtToken(user);
-
-  console.log(user);
-  console.log(newRefreshToken.token);
   console.log(jwtToken);
 
   return {
