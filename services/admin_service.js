@@ -63,10 +63,6 @@ async function loginWithEmail(params, ip) {
 }
 
 async function refreshToken(token, ip) {
-  if (!token) {
-    return TOKEN.EXPIRED;
-  }
-
   const refreshToken = getRefreshToken(token);
   const user = refreshToken.user;
 
