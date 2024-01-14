@@ -14,7 +14,7 @@ const schema = new Schema(
     currentLocation: String,
     time: { type: Date, default: () => new Date(0) },
     email: String,
-    password: String,
+    passwordHash: String,
     schemaVersion: { type: Number, default: 1 },
   },
   {

@@ -14,10 +14,12 @@ async function createAccount(params) {
   }
 
   const email = params.email;
-  const password = hash(params.password);
+  const passwordHash = hash(params.password);
+  user.role = ROLE.Admin;
 
-  Object.assign(user, { email, password });
+  Object.assign(user, { email: email, passwordHash: passwordHash });
   await user.save();
+
   return { status: LOGIN.SUCCESS };
 }
 
