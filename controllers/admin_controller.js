@@ -25,7 +25,7 @@ function createAccount(req, res, next) {
 
 function loginWithEmail(req, res, next) {
   adminService
-    .loginWithEmail(req.body)
+    .loginWithEmail(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         setTokenCookie(res, result.refreshToken);
