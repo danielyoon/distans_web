@@ -38,7 +38,7 @@ function verifyPinNumber(req, res, next) {
     .verifyPinNumber(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else if (result.status === LOGIN.NONEXISTENT) {
         res.status(404).send("User does not exist yet");
       } else {
@@ -53,7 +53,7 @@ function loginWithTokens(req, res, next) {
     .loginWithTokens(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else {
         res.status(401).send("Expired token");
       }
@@ -66,7 +66,7 @@ function createAccount(req, res, next) {
     .createAccount(req.body, req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else {
         res.sendStatus(404);
       }
@@ -131,7 +131,7 @@ function refreshToken(req, res, next) {
     .refreshToken(req.body, req.ip)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else {
         res.status(404).send("Invalid token");
       }
@@ -144,7 +144,7 @@ function checkIn(req, res, next) {
     .checkIn(req.auth.id, req.body)
     .then((result) => {
       if (result.status === CHECK.IN) {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else {
         res.status(404).send("No place exists");
       }
@@ -170,7 +170,7 @@ function testLogin(req, res, next) {
     .testLogin(req.ip)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
-        res.json(result.data);
+        res.send(200).json(result.data);
       } else {
         res.sendStatus(401);
       }
