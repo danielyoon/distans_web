@@ -203,9 +203,10 @@ async function refreshToken(params, ip) {
   };
 }
 
-async function checkIn(userId, params) {
+async function checkIn(params) {
   try {
-    const user = await db.User.findById(userId);
+    const refreshToken = await getRefreshToken(params.token);
+    const user = refreshToken.user;
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
     if (!user) {

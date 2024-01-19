@@ -13,7 +13,7 @@ router.post("/logout", authorize(), logout);
 router.post("/delete-account", authorize(), deleteAccount);
 router.post("/contact-us", authorize(), contactUs);
 router.post("/refresh-token", refreshToken);
-router.post("/check-in", authorize(), checkIn);
+router.post("/check-in", checkIn);
 router.post("/check-out", authorize(), checkOut);
 
 router.post("/test-login", testLogin);
@@ -141,7 +141,7 @@ function refreshToken(req, res, next) {
 
 function checkIn(req, res, next) {
   userService
-    .checkIn(req.auth.id, req.body)
+    .checkIn(req.body)
     .then((result) => {
       if (result.status === CHECK.IN) {
         res.status(200).json(result.data);
