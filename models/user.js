@@ -15,6 +15,7 @@ const schema = new Schema(
     time: { type: Date, default: () => new Date(0) },
     email: String,
     passwordHash: String,
+    history: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
   },
   {

@@ -254,6 +254,10 @@ async function checkIn(params) {
       });
       await newPlace.save();
 
+      user.history.push({
+        location: newPlace.name,
+        time: checkedInTime,
+      });
       user.currentLocation = newPlace._id;
       user.time = checkedInTime;
       await user.save();
