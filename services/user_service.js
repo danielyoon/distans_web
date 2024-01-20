@@ -204,20 +204,22 @@ async function refreshToken(params, ip) {
 }
 
 async function checkIn(params) {
+  console.log(params);
   try {
     const refreshToken = await getRefreshToken(params.token);
     const user = refreshToken.user;
+    console.log(user._id);
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
     if (!user) {
-      console.log("User not found for ID: ", userId);
+      console.log("User not found for ID: ", user._id);
       return { status: "ERROR" };
     }
 
     if (!newPlace) {
       // Handle case where no nearby place is found
       console.log("A location doesn't exist");
-      await checkOut(userId);
+      await checkOut(user._id);
       return { status: CHECK.OUT };
     }
 
@@ -243,7 +245,7 @@ async function checkIn(params) {
     } else {
       // Check out from the previous location if different
       if (user.currentLocation) {
-        await checkOut(userId);
+        await checkOut(user._id);
       }
 
       // Check in to the new place
