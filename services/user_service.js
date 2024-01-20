@@ -204,11 +204,9 @@ async function refreshToken(params, ip) {
 }
 
 async function checkIn(params) {
-  console.log(params);
   try {
     const refreshToken = await getRefreshToken(params.token);
     const user = refreshToken.user;
-    console.log(user._id);
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
     if (!user) {
