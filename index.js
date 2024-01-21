@@ -30,12 +30,7 @@ app.set("trust proxy", 1);
 
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: (origin, callback) => callback(null, true),
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
