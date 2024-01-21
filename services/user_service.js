@@ -55,6 +55,7 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 
     const jwtToken = generateJwtToken(user);
 
+    //TODO: Create a function that returns the data below
     return {
       status: LOGIN.SUCCESS,
       data: {
