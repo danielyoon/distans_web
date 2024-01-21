@@ -24,7 +24,6 @@ async function createAccount(params) {
 }
 
 async function loginWithEmail(params, ip) {
-  console.log(params);
   const { email, password } = params;
   const user = await db.User.findOne({ email: email });
 
