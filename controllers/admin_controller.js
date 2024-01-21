@@ -29,7 +29,9 @@ function loginWithEmail(req, res, next) {
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         setTokenCookie(res, result.refreshToken);
-        res.json({ user: result.data.user, token: result.jwtToken });
+        res
+          .status(200)
+          .json({ user: result.data.user, token: result.jwtToken });
       } else {
         res.sendStatus(404);
       }
@@ -49,7 +51,9 @@ function refreshToken(req, res, next) {
     .then(() => {
       if (result.status === TOKEN.NEW) {
         setTokenCookie(res, result.refreshToken);
-        res.json({ user: result.data.user, token: result.jwtToken });
+        res
+          .status(200)
+          .json({ user: result.data.user, token: result.jwtToken });
       } else {
         res.sendStatus(404);
       }
