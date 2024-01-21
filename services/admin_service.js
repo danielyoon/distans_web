@@ -24,10 +24,9 @@ async function createAccount(params) {
 }
 
 async function loginWithEmail(params, ip) {
+  console.log(params);
   const { email, password } = params;
   const user = await db.User.findOne({ email: email });
-
-  console.log(user);
 
   if (!user) {
     return {
@@ -44,7 +43,10 @@ async function loginWithEmail(params, ip) {
     };
   }
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
+  await db.RefreshToken.findOneAndDelete({
+    user: user._id,
+    isAdminToken: true,
+  });
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
@@ -102,7 +104,7 @@ function generateJwtToken(user) {
   });
 }
 
-/// Token expires after 2 days
+/// Token expires after 1 day
 function generateRefreshToken(user, ipAddress) {
   return new db.RefreshToken({
     user: user.id,

@@ -24,8 +24,6 @@ function createAccount(req, res, next) {
 }
 
 function loginWithEmail(req, res, next) {
-  console.log(req.body);
-
   adminService
     .loginWithEmail(req.body, req.ip)
     .then((result) => {
