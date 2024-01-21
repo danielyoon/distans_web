@@ -7,6 +7,7 @@ const schema = new Schema({
   created: { type: Date, default: Date.now },
   createdByIp: String,
   expires: Date,
+  isAdminToken: Boolean,
 });
 
 schema.virtual("isExpired").get(function () {

@@ -42,7 +42,7 @@ async function loginWithEmail(params, ip) {
     };
   }
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
+  await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
@@ -66,7 +66,7 @@ async function refreshToken(token, ip) {
   const refreshToken = getRefreshToken(token);
   const user = refreshToken.user;
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
+  await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
@@ -88,7 +88,7 @@ async function refreshToken(token, ip) {
 
 async function getRefreshToken(token) {
   const refreshToken = await db.RefreshToken.findOne({ token }).populate(
-    "account"
+    "user"
   );
   if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
   return refreshToken;
@@ -105,8 +105,9 @@ function generateRefreshToken(user, ipAddress) {
   return new db.RefreshToken({
     user: user.id,
     token: randomTokenString(40),
-    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     createdByIp: ipAddress,
+    isAdminToken: true,
   });
 }
 
