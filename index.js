@@ -39,13 +39,6 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; connect-src 'self' https://distans.app;"
-  );
-  next();
-});
 
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", function (req, res) {
