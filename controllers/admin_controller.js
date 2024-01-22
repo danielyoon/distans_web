@@ -47,7 +47,7 @@ function refreshToken(req, res, next) {
   }
   adminService
     .refreshToken(token, req.ip)
-    .then(() => {
+    .then((result) => {
       if (result.status === TOKEN.NEW) {
         setTokenCookie(res, result.refreshToken);
         res

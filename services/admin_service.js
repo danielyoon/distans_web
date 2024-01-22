@@ -69,9 +69,6 @@ async function refreshToken(token, ip) {
   const refreshToken = await getRefreshToken(token);
   const user = refreshToken.user;
 
-  console.log("Here!");
-  console.log(user._id);
-
   await db.RefreshToken.findOneAndDelete({
     user: user._id,
     isAdminToken: true,
