@@ -46,6 +46,8 @@ function refreshToken(req, res, next) {
     return res.sendStatus(404);
   }
 
+  console.log(token);
+
   adminService
     .refreshToken(token, req.ip)
     .then(() => {

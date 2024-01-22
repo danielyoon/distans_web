@@ -66,8 +66,10 @@ async function loginWithEmail(params, ip) {
 }
 
 async function refreshToken(token, ip) {
-  const refreshToken = getRefreshToken(token);
+  const refreshToken = await getRefreshToken(token);
   const user = refreshToken.user;
+
+  console.log(user);
 
   await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
 
