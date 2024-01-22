@@ -66,9 +66,10 @@ async function loginWithEmail(params, ip) {
 }
 
 async function refreshToken(token, ip) {
+  console.log("Cookies token: " + token);
   const refreshToken = await getRefreshToken(token);
+  console.log(refreshToken);
   const user = refreshToken.user;
-
   console.log(user);
 
   await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
@@ -95,6 +96,8 @@ async function getRefreshToken(token) {
   const refreshToken = await db.RefreshToken.findOne({ token }).populate(
     "user"
   );
+
+  console.log("Function token: " + refreshToken);
   if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
   return refreshToken;
 }
