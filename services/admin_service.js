@@ -96,8 +96,11 @@ async function getRefreshToken(token) {
     "user"
   );
 
-  console.log(!refreshToken || !refreshToken.isExpired);
-  if (!refreshToken || !refreshToken.isExpired) throw "Invalid token";
+  console.log("Token exists:", !!refreshToken);
+  console.log("Token is expired:", refreshToken.isExpired);
+
+  if (!refreshToken || refreshToken.isExpired) throw "Invalid token";
+
   return refreshToken;
 }
 
