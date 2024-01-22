@@ -40,15 +40,6 @@ app.use(
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//FIXME: Unsafe-inline should be removed to prevent CSS injections
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; connect-src 'self' https://distans.app; style-src 'self' 'unsafe-inline';"
-  );
-  next();
-});
-
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "public", "index.html"));
