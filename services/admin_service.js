@@ -67,11 +67,15 @@ async function loginWithEmail(params, ip) {
 
 async function refreshToken(token, ip) {
   const refreshToken = await getRefreshToken(token);
-  console.log(refreshToken);
   const user = refreshToken.user;
-  console.log(user);
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id, isAdminToken: true });
+  console.log("Here!");
+  console.log(user._id);
+
+  await db.RefreshToken.findOneAndDelete({
+    user: user._id,
+    isAdminToken: true,
+  });
 
   const newRefreshToken = generateRefreshToken(user, ip);
   await newRefreshToken.save();
@@ -95,12 +99,7 @@ async function getRefreshToken(token) {
   const refreshToken = await db.RefreshToken.findOne({ token }).populate(
     "user"
   );
-
-  console.log("Token exists:", !!refreshToken);
-  console.log("Token is expired:", refreshToken.isExpired);
-
   if (!refreshToken || refreshToken.isExpired) throw "Invalid token";
-
   return refreshToken;
 }
 
