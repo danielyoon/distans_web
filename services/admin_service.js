@@ -66,7 +66,6 @@ async function loginWithEmail(params, ip) {
 }
 
 async function refreshToken(token, ip) {
-  console.log("Cookies token: " + token);
   const refreshToken = await getRefreshToken(token);
   console.log(refreshToken);
   const user = refreshToken.user;
@@ -97,8 +96,7 @@ async function getRefreshToken(token) {
     "user"
   );
 
-  console.log("Function token: " + refreshToken);
-  if (!refreshToken || !refreshToken.isActive) throw "Invalid token";
+  if (!refreshToken || !refreshToken.isExpired) throw "Invalid token";
   return refreshToken;
 }
 
