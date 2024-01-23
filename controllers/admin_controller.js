@@ -66,6 +66,7 @@ function setTokenCookie(res, token) {
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    path: "/",
   };
   res.cookie("refreshToken", token, cookieOptions);
 }
