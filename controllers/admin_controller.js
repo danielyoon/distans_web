@@ -40,9 +40,9 @@ function loginWithEmail(req, res, next) {
 }
 
 function refreshToken(req, res, next) {
-  const token = req.cookies.refreshToken;
+  console.log(req.cookies);
 
-  console.log(token);
+  const token = req.cookies.refreshToken;
 
   if (!token) {
     return res.sendStatus(404);
