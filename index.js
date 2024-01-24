@@ -32,7 +32,12 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: (origin, callback) => callback(null, true),
+    origin: [
+      "http://localhost:3000",
+      "https://www.distans.app",
+      "https://admin.distans.app",
+    ],
+    methods: ["GET", "POST"],
     credentials: true,
   })
 );
