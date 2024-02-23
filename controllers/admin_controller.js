@@ -66,7 +66,6 @@ function setTokenCookie(res, token) {
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    domain: ".distans.app",
   };
   res.cookie("refreshToken", token, cookieOptions);
 }

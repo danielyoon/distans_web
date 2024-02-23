@@ -55,24 +55,9 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 
     const jwtToken = generateJwtToken(user);
 
-    //TODO: Create a function that returns the data below
     return {
       status: LOGIN.SUCCESS,
-      data: {
-        user: {
-          id: user._id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          photo: user.photo,
-          countryCode: user.countryCode,
-          phoneNumber: user.phoneNumber,
-          birthday: user.birthday,
-          role: user.role,
-          createdAt: user.createdAt,
-        },
-        refreshToken: newRefreshToken.token,
-        jwtToken,
-      },
+      data: createUserData(user, newRefreshToken, jwtToken),
     };
   }
 }
@@ -91,16 +76,7 @@ async function loginWithTokens(params, ip) {
 
   return {
     status: LOGIN.SUCCESS,
-    data: {
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-      },
-      refreshToken: newRefreshToken.token,
-      jwtToken,
-    },
+    data: createUserData(user, newRefreshToken, jwtToken),
   };
 }
 
@@ -128,20 +104,7 @@ async function createAccount(params, ip) {
 
   return {
     status: LOGIN.SUCCESS,
-    data: {
-      user: {
-        id: user._id,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        countryCode: user.countryCode,
-        phoneNumber: user.phoneNumber,
-        birthday: user.birthday,
-        createdAt: user.createdAt,
-      },
-      refreshToken: newRefreshToken.token,
-      jwtToken,
-    },
+    data: createUserData(user, newRefreshToken, jwtToken),
   };
 }
 
@@ -395,4 +358,22 @@ async function sendUserComments(id, email, comments) {
     subject: "User Comments",
     html: `<h3>User Comments</h3><br><p>${comments} sent by <br>${id} with email ${email}</p>`,
   });
+}
+
+function createUserData(user, newRefreshToken, jwtToken) {
+  return {
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photo: user.photo,
+      countryCode: user.countryCode,
+      phoneNumber: user.phoneNumber,
+      birthday: user.birthday,
+      role: user.role,
+      createdAt: user.createdAt,
+    },
+    refreshToken: newRefreshToken.token,
+    jwtToken,
+  };
 }
