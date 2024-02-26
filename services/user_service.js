@@ -262,10 +262,12 @@ async function checkOut(userId) {
       {
         $set: {
           currentLocation: "",
-          recentCheckedIn: new Date(0),
+          recentCheckedIn: null,
         },
       }
     );
+
+    console.log("Checked out successfully"); // Indicate a successful operation
 
     return { status: CHECK.OUT };
   } catch (error) {
@@ -293,21 +295,7 @@ async function testLogin(ip) {
 
   return {
     status: LOGIN.SUCCESS,
-    data: {
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        photo: user.photo,
-        countryCode: user.countryCode,
-        phoneNumber: user.phoneNumber,
-        birthday: user.birthday,
-        role: user.role,
-        createdAt: user.createdAt,
-      },
-      refreshToken: newRefreshToken.token,
-      jwtToken,
-    },
+    data: createUserData(user, newRefreshToken, jwtToken),
   };
 }
 

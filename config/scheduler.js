@@ -32,7 +32,7 @@ async function scheduler() {
         {
           $set: {
             currentLocation: "",
-            recentCheckedIn: new Date(0),
+            recentCheckedIn: null,
           },
         }
       );
