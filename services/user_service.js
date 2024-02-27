@@ -238,7 +238,7 @@ async function checkOut(userId) {
   try {
     // Find the user and check if they are checked in somewhere
     const user = await db.User.findById(userId);
-    console.log("Currently checked in: " + _user.currentLocation);
+    console.log("Currently checked in: " + user.currentLocation);
     if (!user || !user.currentLocation) {
       return { status: CHECK.OUT }; // User is not checked in anywhere
     }
