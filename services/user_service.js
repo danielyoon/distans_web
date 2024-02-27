@@ -117,16 +117,8 @@ async function updateUserPermission(id, params) {
   return { status: "SUCCESS" };
 }
 
-async function logout(params) {
-  const refreshToken = await getRefreshToken(params.token);
-  const user = refreshToken.user;
-
-  if (refreshToken.isExpired) {
-    return {
-      status: LOGIN.EXPIRED,
-      data: null,
-    };
-  }
+async function logout(id) {
+  const user = await db.User.findOne({ _id: id });
 
   await db.RefreshToken.findOneAndDelete({ user: user.id });
 
@@ -246,6 +238,7 @@ async function checkOut(userId) {
   try {
     // Find the user and check if they are checked in somewhere
     const user = await db.User.findById(userId);
+    console.log("Currently checked in: " + _user.currentLocation);
     if (!user || !user.currentLocation) {
       return { status: CHECK.OUT }; // User is not checked in anywhere
     }
