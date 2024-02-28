@@ -259,7 +259,7 @@ async function checkOut(userId) {
     // Update the Place/Marker document: remove the user from the checked-in users
     await db.Place.updateOne(
       { _id: user.currentLocation },
-      { $pull: { users: { user: userId } } }
+      { $pull: { users: { user: userId.toString() } } }
     );
 
     // Update the User document: reset currentLocation and recentCheckedIn
