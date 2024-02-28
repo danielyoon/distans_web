@@ -234,26 +234,12 @@ async function checkIn(params) {
   }
 }
 
-function isString(value) {
-  return typeof value === "string" || value instanceof String;
-}
-
 async function checkOut(userId) {
-  console.log("Is it string: " + isString(userId));
-
   try {
     // Find the user and check if they are checked in somewhere
     const user = await db.User.findById(userId);
-    console.log("Currently checked in: " + user.currentLocation);
     if (!user || !user.currentLocation) {
       return { status: CHECK.OUT }; // User is not checked in anywhere
-    }
-
-    const placeExists = await db.Place.findOne({ _id: user.currentLocation });
-    if (placeExists) {
-      console.log("Place found:", placeExists);
-    } else {
-      console.log("No place found with the given ID");
     }
 
     // Update the Place/Marker document: remove the user from the checked-in users
@@ -272,8 +258,6 @@ async function checkOut(userId) {
         },
       }
     );
-
-    console.log("Checked out successfully"); // Indicate a successful operation
 
     return { status: CHECK.OUT };
   } catch (error) {
