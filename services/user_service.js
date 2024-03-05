@@ -166,13 +166,11 @@ async function checkIn(params) {
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
     if (!user) {
-      console.log("User not found for ID: ", user._id);
       return { status: "ERROR" };
     }
 
     if (!newPlace) {
       // Handle case where no nearby place is found
-      console.log("A location doesn't exist");
       await checkOut(user._id);
       return { status: CHECK.OUT };
     }
@@ -184,7 +182,6 @@ async function checkIn(params) {
       user.currentLocation &&
       user.currentLocation.toString() === newPlace._id.toString()
     ) {
-      console.log("User already checked in at the location");
       // Find the user in the checkedInUsers array
       const userIndex = newPlace.users.findIndex(
         (checkedInUser) => checkedInUser.user.toString() === user._id.toString()
@@ -217,8 +214,6 @@ async function checkIn(params) {
       user.currentLocation = newPlace._id;
       user.time = checkedInTime;
       await user.save();
-
-      console.log("User checked in successfully");
     }
 
     return {

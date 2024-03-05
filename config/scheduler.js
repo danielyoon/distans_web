@@ -44,8 +44,6 @@ async function scheduler() {
         }
       );
     }
-
-    console.log("Scheduler ran successfully.");
   } catch (error) {
     console.error("Error in scheduler function:", error);
   }
