@@ -169,8 +169,8 @@ async function checkIn(params) {
       return { status: "ERROR" };
     }
 
-    if (!newPlace) {
-      // Handle case where no nearby place is found
+    if (!newPlace || newPlace.approved == false) {
+      // Handle case where no nearby approved place is found
       await checkOut(user._id);
       return { status: CHECK.OUT };
     }
