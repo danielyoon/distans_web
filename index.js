@@ -1,3 +1,5 @@
+require("dotenv").config({ silent: true });
+
 const express = require("express"),
   app = express(),
   helmet = require("helmet"),
@@ -11,10 +13,6 @@ const express = require("express"),
   path = require("path"),
   server = require("http").createServer(app),
   port = process.env.PORT || 5000;
-
-const environment = process.env.NODE_ENV || "development";
-
-if (environment == "development") require("dotenv").config({ silent: true });
 
 app.use(helmet());
 app.use(morgan("dev"));
