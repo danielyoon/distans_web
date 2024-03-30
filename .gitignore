@@ -15,7 +15,6 @@ yarn-error.log*
 
 # Production build folder
 /dist
-/build
 
 # IDEs and editors
 /.idea
