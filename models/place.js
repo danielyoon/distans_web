@@ -19,6 +19,7 @@ const schema = new Schema(
       },
     },
     users: { type: Array, default: [] },
+    capacity: Number,
     schemaVersion: { type: Number, default: 1 },
   },
   {
