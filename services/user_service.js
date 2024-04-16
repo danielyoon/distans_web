@@ -261,27 +261,16 @@ async function checkOut(userId) {
   }
 }
 
-async function testLogin(ip) {
-  const user = await db.User.findOne({ phoneNumber: "5553478267" });
-
-  if (!user) {
+async function testLogin(params) {
+  if (params.pin == 2024) {
     return {
-      status: LOGIN.NONEXISTENT,
-      data: null,
+      status: LOGIN.SUCCESS,
+    };
+  } else {
+    return {
+      status: LOGIN.WRONG,
     };
   }
-
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-  const newRefreshToken = generateRefreshToken(user, ip);
-  await newRefreshToken.save();
-
-  const jwtToken = generateJwtToken(user);
-
-  return {
-    status: LOGIN.SUCCESS,
-    data: createUserData(user, newRefreshToken, jwtToken),
-  };
 }
 
 function generateJwtToken(user) {

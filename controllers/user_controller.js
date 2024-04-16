@@ -167,7 +167,7 @@ function checkOut(req, res, next) {
 
 function testLogin(req, res, next) {
   userService
-    .testLogin(req.ip)
+    .testLogin(req.body)
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         res.status(200).json(result.data);
