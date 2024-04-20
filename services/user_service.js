@@ -18,6 +18,8 @@ module.exports = {
   refreshToken,
   checkIn,
   checkOut,
+  addFriend,
+  getFriends,
   testLogin,
 };
 
@@ -229,10 +231,10 @@ async function checkIn(params) {
   }
 }
 
-async function checkOut(userId) {
+async function checkOut(id) {
   try {
     // Find the user and check if they are checked in somewhere
-    const user = await db.User.findById(userId);
+    const user = await db.User.findById(id);
     if (!user || !user.currentLocation) {
       return { status: CHECK.OUT }; // User is not checked in anywhere
     }
@@ -240,12 +242,12 @@ async function checkOut(userId) {
     // Update the Place/Marker document: remove the user from the checked-in users
     await db.Place.updateOne(
       { _id: user.currentLocation },
-      { $pull: { users: { user: userId.toString() } } }
+      { $pull: { users: { user: id.toString() } } }
     );
 
     // Update the User document: reset currentLocation and recentCheckedIn
     await db.User.updateOne(
-      { _id: userId },
+      { _id: id },
       {
         $set: {
           currentLocation: "",
@@ -259,6 +261,48 @@ async function checkOut(userId) {
     console.error("Error in checkOut function:", error);
     return { status: "ERROR", message: error.message };
   }
+}
+
+async function addFriend(id, params) {
+  const friendId = params.friendId;
+  const user = await db.User.findById(id);
+
+  const friendExists = user.friends.some((friend) => friend.equals(friendId));
+
+  if (friendExists) {
+    return {
+      status: "ERROR",
+      message: "Friend already exists",
+    };
+  }
+
+  const friend = await db.User.findById(friendId);
+
+  const friendObjectId = mongoose.Types.ObjectId(friendId);
+  const userObjectId = mongoose.Types.ObjectId(id);
+
+  user.friends.push(friendObjectId);
+  await user.save();
+
+  friend.friends.push(userObjectId);
+  await friend.save();
+
+  return {
+    status: "SUCCESS",
+  };
+}
+
+async function getFriends(id) {
+  const user = await db.User.findById(id).populate("friends");
+
+  const friendsData = user.friends.map((friend) => ({
+    id: friend._id,
+    firstName: friend.firstName,
+    lastName: friend.lastName,
+    photo: friend.photo,
+  }));
+
+  return { status: "SUCCESS", data: friendsData };
 }
 
 async function testLogin(params) {

@@ -16,6 +16,7 @@ const schema = new Schema(
     email: String,
     passwordHash: String,
     history: { type: Array, default: [] },
+    friends: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
   },
   {

@@ -15,6 +15,8 @@ router.post("/contact-us", authorize(), contactUs);
 router.post("/refresh-token", refreshToken);
 router.post("/check-in", checkIn);
 router.post("/check-out", authorize(), checkOut);
+router.post("/add-friend", authorize(), addFriend);
+router.get("/get-friends", authorize(), getFriends);
 
 router.post("/test-login", testLogin);
 
@@ -158,6 +160,32 @@ function checkOut(req, res, next) {
     .then((result) => {
       if (result.status === CHECK.OUT) {
         res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function addFriend(req, res, next) {
+  userService
+    .addFriend(req.auth.id, req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getFriends(req, res, next) {
+  userService
+    .getFriends(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }
