@@ -172,7 +172,7 @@ function addFriend(req, res, next) {
     .addFriend(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.sendStatus(200);
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }

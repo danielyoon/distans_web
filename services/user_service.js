@@ -287,8 +287,18 @@ async function addFriend(id, params) {
   friend.friends.push(userObjectId);
   await friend.save();
 
+  const friendsData = {
+    id: friend._id,
+    firstName: friend.firstName,
+    lastName: friend.lastName,
+    photo: friend.photo,
+    currentLocation: friend.currentLocation,
+    time: friend.time,
+  };
+
   return {
     status: "SUCCESS",
+    data: friendsData,
   };
 }
 
