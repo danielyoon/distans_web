@@ -300,6 +300,8 @@ async function getFriends(id) {
     firstName: friend.firstName,
     lastName: friend.lastName,
     photo: friend.photo,
+    currentLocation: friend.currentLocation,
+    time: friend.time,
   }));
 
   return { status: "SUCCESS", data: friendsData };
