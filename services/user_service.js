@@ -303,9 +303,16 @@ async function addFriend(id, params) {
 }
 
 async function getFriends(id) {
-  const user = await db.User.findById(id).populate("friends");
+  let user = await db.User.findById(id).populate("friends");
 
-  const friendsData = user.friends.map((friend) => ({
+  const existingFriends = user.friends.filter((friend) => friend !== null);
+
+  if (existingFriends.length !== user.friends.length) {
+    user.friends = existingFriends.map((friend) => friend._id);
+    await user.save();
+  }
+
+  const friendsData = existingFriends.map((friend) => ({
     id: friend._id,
     firstName: friend.firstName,
     lastName: friend.lastName,
