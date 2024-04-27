@@ -66,8 +66,6 @@ async function handleExpiredRefreshTokens() {
     if (expiredTokens.length > 0) {
       const expiredTokenIds = expiredTokens.map((token) => token._id);
       await db.RefreshToken.deleteMany({ _id: { $in: expiredTokenIds } });
-    } else {
-      console.log("No expired tokens found to delete.");
     }
   } catch (error) {
     console.error("Error in handleExpiredRefreshTokens:", error);
