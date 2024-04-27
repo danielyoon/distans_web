@@ -4,47 +4,72 @@ module.exports = scheduler;
 
 async function scheduler() {
   try {
-    const currentTime = new Date();
+    await handleUserCheckouts();
+  } catch (error) {
+    console.error("Error in handleUserCheckouts:", error);
+  }
 
-    const places = await db.Place.find({}, "users").populate("users");
+  try {
+    await handleExpiredRefreshTokens();
+  } catch (error) {
+    console.error("Error in handleExpiredRefreshTokens:", error);
+  }
+}
 
-    let usersToUpdate = [];
-    let markersToUpdate = [];
+async function handleUserCheckouts() {
+  const currentTime = new Date();
+  const places = await db.Place.find({}, "users").populate("users");
+  let usersToUpdate = [];
+  let markersToUpdate = [];
 
-    for (const place of places) {
-      for (const user of place.users) {
-        const minutesSinceCheckedIn = Math.floor(
-          Math.abs(currentTime - user.checkedInTime) / 1000 / 60
-        );
+  for (const place of places) {
+    for (const user of place.users) {
+      const minutesSinceCheckedIn = Math.floor(
+        Math.abs(currentTime - user.checkedInTime) / 1000 / 60
+      );
 
-        let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
+      let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
 
-        if (minutesSinceCheckedIn > checkoutTime) {
-          usersToUpdate.push(user.user);
-          markersToUpdate.push(place._id);
-        }
+      if (minutesSinceCheckedIn > checkoutTime) {
+        usersToUpdate.push(user.user);
+        markersToUpdate.push(place._id);
       }
     }
+  }
 
-    if (usersToUpdate.length > 0) {
-      await db.User.updateMany(
-        { _id: { $in: usersToUpdate } },
-        {
-          $set: {
-            currentLocation: "",
-            recentCheckedIn: null,
-          },
-        }
-      );
+  if (usersToUpdate.length > 0) {
+    await db.User.updateMany(
+      { _id: { $in: usersToUpdate } },
+      {
+        $set: {
+          currentLocation: "",
+          recentCheckedIn: null,
+        },
+      }
+    );
 
-      await db.Place.updateMany(
-        { _id: { $in: markersToUpdate } },
-        {
-          $pull: { users: { user: { $in: usersToUpdate } } },
-        }
-      );
+    await db.Place.updateMany(
+      { _id: { $in: markersToUpdate } },
+      {
+        $pull: { users: { user: { $in: usersToUpdate } } },
+      }
+    );
+  }
+}
+
+async function handleExpiredRefreshTokens() {
+  try {
+    const expiredTokens = await db.RefreshToken.find({
+      expires: { $lte: new Date() },
+    });
+
+    if (expiredTokens.length > 0) {
+      const expiredTokenIds = expiredTokens.map((token) => token._id);
+      await db.RefreshToken.deleteMany({ _id: { $in: expiredTokenIds } });
+    } else {
+      console.log("No expired tokens found to delete.");
     }
   } catch (error) {
-    console.error("Error in scheduler function:", error);
+    console.error("Error in handleExpiredRefreshTokens:", error);
   }
 }
