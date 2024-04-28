@@ -265,15 +265,19 @@ async function checkOut(id) {
 }
 
 async function getQrData(params) {
+  console.log("Received params:", params);
   const idText = "distans: " + params.id;
   const expiry = new Date(Date.now() + 60 * 60 * 1000);
+  console.log("Prepared data for encryption:", { idText, expiry });
 
   const data = JSON.stringify({
     data: idText,
     expiry: expiry.toISOString(),
   });
 
-  return encrypt(data);
+  const encryptedData = encrypt(data);
+  console.log("Encrypted data:", encryptedData);
+  return encryptedData;
 }
 
 async function addFriend(id, encryptedParams) {
