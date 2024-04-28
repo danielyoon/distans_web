@@ -18,6 +18,7 @@ module.exports = {
   refreshToken,
   checkIn,
   checkOut,
+  getQrData,
   addFriend,
   getFriends,
   testLogin,
@@ -263,43 +264,67 @@ async function checkOut(id) {
   }
 }
 
-async function addFriend(id, params) {
-  const friendId = params.friendId;
-  const user = await db.User.findById(id);
+async function getQrData(params) {
+  const idText = "distans: " + params.id;
+  const expiry = new Date(Date.now() + 60 * 60 * 1000);
 
-  const friendExists = user.friends.some((friend) => friend.equals(friendId));
+  const data = JSON.stringify({
+    data: idText,
+    expiry: expiry.toISOString(),
+  });
 
-  if (friendExists) {
+  return encrypt(data);
+}
+
+async function addFriend(id, encryptedParams) {
+  try {
+    const decryptedData = decrypt(encryptedParams);
+    const data = JSON.parse(decryptedData);
+
+    const now = new Date();
+    const expiry = new Date(data.expiry);
+    if (now > expiry) {
+      throw new Error("QR Code has expired.");
+    }
+
+    const friendId = data.data.split("distans: ")[1];
+
+    const user = await db.User.findById(id);
+    const friend = await db.User.findById(friendId);
+
+    const friendExists = user.friends.some((friend) => friend.equals(friendId));
+    if (friendExists) {
+      return {
+        status: "ERROR",
+        message: "Friend already exists",
+      };
+    }
+
+    user.friends.push(friend._id);
+    await user.save();
+
+    friend.friends.push(user._id);
+    await friend.save();
+
+    const friendsData = {
+      id: friend._id,
+      firstName: friend.firstName,
+      lastName: friend.lastName,
+      photo: friend.photo,
+      currentLocation: friend.currentLocation,
+      time: friend.time,
+    };
+
+    return {
+      status: "SUCCESS",
+      data: friendsData,
+    };
+  } catch (error) {
     return {
       status: "ERROR",
-      message: "Friend already exists",
+      message: error.message,
     };
   }
-
-  const friend = await db.User.findById(friendId);
-
-  const friendObjectId = mongoose.Types.ObjectId(friendId);
-  const userObjectId = mongoose.Types.ObjectId(id);
-
-  user.friends.push(friendObjectId);
-  await user.save();
-
-  friend.friends.push(userObjectId);
-  await friend.save();
-
-  const friendsData = {
-    id: friend._id,
-    firstName: friend.firstName,
-    lastName: friend.lastName,
-    photo: friend.photo,
-    currentLocation: friend.currentLocation,
-    time: friend.time,
-  };
-
-  return {
-    status: "SUCCESS",
-    data: friendsData,
-  };
 }
 
 async function getFriends(id) {
@@ -340,6 +365,34 @@ function generateJwtToken(user) {
   return jwt.sign({ sub: user.id, id: user.id }, process.env.SECRET_OR_KEY, {
     expiresIn: "1h",
   });
+}
+
+function encrypt(text) {
+  const secretKey = process.env.SECRET_OR_KEY;
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(secretKey, "hex"),
+    iv
+  );
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+function decrypt(text) {
+  const secretKey = process.env.SECRET_OR_KEY;
+  const textParts = text.split(":");
+  const iv = Buffer.from(textParts.shift(), "hex");
+  const encryptedText = Buffer.from(textParts.join(":"), "hex");
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(secretKey, "hex"),
+    iv
+  );
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
 }
 
 /// Token expires after 2 days
