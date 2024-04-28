@@ -372,7 +372,7 @@ function encrypt(text) {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
-    Buffer.from(secretKey, "hex"),
+    Buffer.from(secretKey),
     iv
   );
   let encrypted = cipher.update(text);
@@ -387,7 +387,7 @@ function decrypt(text) {
   const encryptedText = Buffer.from(textParts.join(":"), "hex");
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
-    Buffer.from(secretKey, "hex"),
+    Buffer.from(secretKey),
     iv
   );
   let decrypted = decipher.update(encryptedText);
