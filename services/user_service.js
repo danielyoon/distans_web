@@ -368,7 +368,7 @@ function generateJwtToken(user) {
 }
 
 function encrypt(text) {
-  const secretKey = process.env.SECRET_OR_KEY;
+  const secretKey = process.env.ENCRYPT_KEY;
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
@@ -381,7 +381,7 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-  const secretKey = process.env.SECRET_OR_KEY;
+  const secretKey = process.env.ENCRYPT_KEY;
   const textParts = text.split(":");
   const iv = Buffer.from(textParts.shift(), "hex");
   const encryptedText = Buffer.from(textParts.join(":"), "hex");
