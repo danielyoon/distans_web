@@ -284,8 +284,8 @@ async function getQrData(params) {
 
 async function addFriend(id, encryptedParams) {
   try {
-    console.log(encryptedParams);
-    const decryptedData = decrypt(encryptedParams);
+    console.log(encryptedParams.friendId);
+    const decryptedData = decrypt(encryptedParams.friendId);
 
     console.log(decryptedData);
     const qr = await db.QrCode.findById(decryptedData);
