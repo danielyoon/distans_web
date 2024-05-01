@@ -265,6 +265,12 @@ async function checkOut(id) {
 }
 
 async function getQrData(params) {
+  const existingCode = await db.QrCode.findOne({ id: params.id });
+
+  if (existingCode) {
+    await db.QrCode.deleteOne({ id: params.id });
+  }
+
   const qr = new db.QrCode({
     id: params.id,
     expires: new Date(Date.now() + 60 * 60 * 1000),
@@ -278,8 +284,13 @@ async function getQrData(params) {
 
 async function addFriend(id, encryptedParams) {
   try {
+    console.log(encryptedParams);
     const decryptedData = decrypt(encryptedParams);
+
+    console.log(decryptedData);
     const qr = await db.QrCode.findById(decryptedData);
+
+    console.log(qr);
 
     if (!qr) {
       throw new Error("Qr Code doesn't exist!");
