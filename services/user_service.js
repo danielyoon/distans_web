@@ -284,24 +284,24 @@ async function getQrData(params) {
 
 async function addFriend(id, encryptedParams) {
   try {
-    console.log(encryptedParams.friendId);
     const decryptedData = decrypt(encryptedParams.friendId);
-
-    console.log(decryptedData);
     const qr = await db.QrCode.findById(decryptedData);
-
-    console.log(qr);
 
     if (!qr) {
       throw new Error("Qr Code doesn't exist!");
     }
+
+    console.log(qr.isExpired);
 
     if (qr.isExpired) {
       throw new Error("QR Code has expired.");
     }
 
     const user = await db.User.findById(id);
+    console.log(user);
+
     const friend = await db.User.findById(qr.id);
+    console.log(friend);
 
     const friendExists = user.friends.some((f) => f.equals(friend._id));
     if (friendExists) {
