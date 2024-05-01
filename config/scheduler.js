@@ -14,6 +14,12 @@ async function scheduler() {
   } catch (error) {
     console.error("Error in handleExpiredRefreshTokens:", error);
   }
+
+  try {
+    await handleExpiredQrCodes();
+  } catch (error) {
+    console.error("Error in handleExpiredQrCodes:", error);
+  }
 }
 
 async function handleUserCheckouts() {
@@ -69,5 +75,20 @@ async function handleExpiredRefreshTokens() {
     }
   } catch (error) {
     console.error("Error in handleExpiredRefreshTokens:", error);
+  }
+}
+
+async function handleExpiredQrCodes() {
+  try {
+    const expiredCodes = await db.QrCode.find({
+      expires: { $lte: new Date() },
+    });
+
+    if (expiredCodes.length > 0) {
+      const expiredCodesIds = expiredCodes.map((token) => token._id);
+      await db.RefreshToken.deleteMany({ _id: { $in: expiredCodesIds } });
+    }
+  } catch (error) {
+    console.error("Error in handleExpiredQrCodes:", error);
   }
 }

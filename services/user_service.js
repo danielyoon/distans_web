@@ -265,35 +265,34 @@ async function checkOut(id) {
 }
 
 async function getQrData(params) {
-  const idText = "distans: " + params.id;
-  const expiry = new Date(Date.now() + 60 * 60 * 1000);
-
-  const data = JSON.stringify({
-    data: idText,
-    expiry: expiry.toISOString(),
+  const qr = new db.QrCode({
+    id: params.id,
+    expires: new Date(Date.now() + 60 * 60 * 1000),
   });
 
-  const encryptedData = encrypt(data);
+  await qr.save();
+
+  const encryptedData = encrypt(qr._id.toString());
   return { status: "SUCCESS", data: encryptedData };
 }
 
 async function addFriend(id, encryptedParams) {
   try {
     const decryptedData = decrypt(encryptedParams);
-    const data = JSON.parse(decryptedData);
+    const qr = await db.QrCode.findById(decryptedData);
 
-    const now = new Date();
-    const expiry = new Date(data.expiry);
-    if (now > expiry) {
+    if (!qr) {
+      throw new Error("Qr Code doesn't exist!");
+    }
+
+    if (qr.isExpired) {
       throw new Error("QR Code has expired.");
     }
 
-    const friendId = data.data.split("distans: ")[1];
-
     const user = await db.User.findById(id);
-    const friend = await db.User.findById(friendId);
+    const friend = await db.User.findById(qr.id);
 
-    const friendExists = user.friends.some((friend) => friend.equals(friendId));
+    const friendExists = user.friends.some((f) => f.equals(friend._id));
     if (friendExists) {
       return {
         status: "ERROR",
@@ -376,24 +375,34 @@ function encrypt(text) {
     Buffer.from(secretKey),
     iv
   );
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return iv.toString("hex") + ":" + encrypted.toString("hex");
+  let encrypted = cipher.update(text, "utf8", "base64");
+  encrypted += cipher.final("base64");
+  return Buffer.from(iv.toString("base64") + ":" + encrypted).toString(
+    "base64"
+  );
 }
 
 function decrypt(text) {
   const secretKey = process.env.ENCRYPT_KEY;
-  const textParts = text.split(":");
-  const iv = Buffer.from(textParts.shift(), "hex");
-  const encryptedText = Buffer.from(textParts.join(":"), "hex");
+  const buffer = Buffer.from(text, "base64");
+  const combined = buffer.toString();
+
+  const splitIndex = combined.indexOf(":");
+  const ivBase64 = combined.substring(0, splitIndex);
+  const encryptedTextBase64 = combined.substring(splitIndex + 1);
+
+  const iv = Buffer.from(ivBase64, "base64");
+  const encryptedText = Buffer.from(encryptedTextBase64, "base64");
+
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
     Buffer.from(secretKey),
     iv
   );
-  let decrypted = decipher.update(encryptedText);
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  return decrypted.toString();
+  let decrypted = decipher.update(encryptedText, "base64", "utf8");
+  decrypted += decipher.final("utf8");
+
+  return decrypted;
 }
 
 /// Token expires after 2 days
