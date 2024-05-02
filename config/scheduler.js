@@ -86,7 +86,7 @@ async function handleExpiredQrCodes() {
 
     if (expiredCodes.length > 0) {
       const expiredCodesIds = expiredCodes.map((token) => token._id);
-      await db.RefreshToken.deleteMany({ _id: { $in: expiredCodesIds } });
+      await db.QrCode.deleteMany({ _id: { $in: expiredCodesIds } });
     }
   } catch (error) {
     console.error("Error in handleExpiredQrCodes:", error);
