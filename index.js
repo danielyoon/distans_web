@@ -45,13 +45,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "public")));
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
 
 app.use("/users", require("./controllers/user_controller"));
 app.use("/maps", require("./controllers/map_controller"));
 app.use("/admin", require("./controllers/admin_controller"));
+
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // socket(server);
 
