@@ -12,6 +12,7 @@ const express = require("express"),
   rateLimit = require("express-rate-limit"),
   path = require("path"),
   server = require("http").createServer(app),
+  // socket = require("./services/socket_service"),
   port = process.env.PORT || 5000;
 
 app.use(helmet());
@@ -40,6 +41,10 @@ app.use(
   })
 );
 
+app.use("/users", require("./controllers/user_controller"));
+app.use("/maps", require("./controllers/map_controller"));
+app.use("/admin", require("./controllers/admin_controller"));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -48,9 +53,7 @@ app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.use("/users", require("./controllers/user_controller"));
-app.use("/maps", require("./controllers/map_controller"));
-app.use("/admin", require("./controllers/admin_controller"));
+// socket(server);
 
 app.use(errorHandler);
 
