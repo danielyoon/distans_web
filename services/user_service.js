@@ -352,6 +352,8 @@ async function getFriends(id) {
     time: friend.time,
   }));
 
+  console.log(friendsData);
+
   return { status: "SUCCESS", data: friendsData };
 }
 
