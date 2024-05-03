@@ -16,7 +16,7 @@ const schema = new Schema(
     email: String,
     passwordHash: String,
     history: { type: Array, default: [] },
-    friends: { type: Array, default: [] },
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     schemaVersion: { type: Number, default: 1 },
   },
   {
