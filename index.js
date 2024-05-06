@@ -19,8 +19,8 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 250,
+  windowMs: 10 * 60 * 1000,
+  max: 500,
   message: "Too many requests, please try again later",
 });
 
