@@ -18,13 +18,13 @@ const express = require("express"),
 app.use(helmet());
 app.use(morgan("dev"));
 
-const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 500,
-  message: "Too many requests, please try again later",
-});
+// const limiter = rateLimit({
+//   windowMs: 10 * 60 * 1000,
+//   max: 500,
+//   message: "Too many requests, please try again later",
+// });
 
-app.use(limiter);
+// app.use(limiter);
 app.set("trust proxy", 1);
 
 app.use(cookieParser());
