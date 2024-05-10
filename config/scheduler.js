@@ -20,6 +20,12 @@ async function scheduler() {
   } catch (error) {
     console.error("Error in handleExpiredQrCodes:", error);
   }
+
+  try {
+    await handleDemoUser();
+  } catch (error) {
+    console.error("Error in handleExpiredQrCodes:", error);
+  }
 }
 
 async function handleUserCheckouts() {
@@ -87,6 +93,24 @@ async function handleExpiredQrCodes() {
     if (expiredCodes.length > 0) {
       const expiredCodesIds = expiredCodes.map((token) => token._id);
       await db.QrCode.deleteMany({ _id: { $in: expiredCodesIds } });
+    }
+  } catch (error) {
+    console.error("Error in handleExpiredQrCodes:", error);
+  }
+}
+
+async function handleDemoUser() {
+  try {
+    const demoUser = await db.User.find({
+      phoneNumber: 5553478267,
+    });
+
+    if (demoUser) {
+      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+      if (demoUser.createdAt < twoDaysAgo) {
+        await db.User.deleteOne({ _id: demoUser._id });
+      }
     }
   } catch (error) {
     console.error("Error in handleExpiredQrCodes:", error);
