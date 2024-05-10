@@ -336,7 +336,16 @@ async function addFriend(id, encryptedParams) {
 async function getFriends(id) {
   let user = await db.User.findById(id).populate("friends");
 
-  const existingFriends = user.friends.filter((friend) => friend !== null);
+  let existingFriends = user.friends.filter((friend) => friend !== null);
+
+  existingFriends = await Promise.all(
+    existingFriends.map(async (friend) => {
+      const exists = await db.User.findById(friend._id);
+      return exists ? friend : null;
+    })
+  );
+
+  existingFriends = existingFriends.filter((friend) => friend !== null);
 
   if (existingFriends.length !== user.friends.length) {
     user.friends = existingFriends.map((friend) => friend._id);
