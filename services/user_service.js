@@ -1,5 +1,6 @@
 var jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
+  winston = require("winston"),
   { LOGIN, CHECK } = require("../components/enums"),
   sendEmail = require("../components/send_email"),
   client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN),
@@ -23,6 +24,26 @@ module.exports = {
   getFriends,
   testLogin,
 };
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: "error.log", level: "error" }),
+    new winston.transports.File({ filename: "combined.log" }),
+  ],
+});
+
+if (process.env.NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
+}
 
 async function loginWithPhoneNumber({ phoneNumber }) {
   const number = "+1" + phoneNumber;
@@ -143,23 +164,37 @@ async function contactUs(id, params) {
 }
 
 async function refreshToken(params, ip) {
-  const refreshToken = await getRefreshToken(params.token);
-  const user = refreshToken.user;
+  try {
+    const refreshToken = await getRefreshToken(params.token);
+    const user = refreshToken.user;
 
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
+    await db.RefreshToken.findOneAndDelete({ user: user.id });
 
-  const newRefreshToken = generateRefreshToken(user, ip);
-  await newRefreshToken.save();
+    const newRefreshToken = generateRefreshToken(user, ip);
+    await newRefreshToken.save();
 
-  const jwtToken = generateJwtToken(user);
+    const jwtToken = generateJwtToken(user);
 
-  return {
-    status: LOGIN.SUCCESS,
-    data: {
-      refreshToken: newRefreshToken.token,
-      jwtToken,
-    },
-  };
+    return {
+      status: LOGIN.SUCCESS,
+      data: {
+        refreshToken: newRefreshToken.token,
+        jwtToken,
+      },
+    };
+  } catch (error) {
+    logger.error(`Error in refreshToken: ${error.message}`, {
+      timestamp: new Date().toISOString(),
+      params,
+      ip,
+      stack: error.stack,
+    });
+
+    return {
+      status: 400,
+      message: "Error refreshing token",
+    };
+  }
 }
 
 async function checkIn(params) {
