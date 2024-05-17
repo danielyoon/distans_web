@@ -26,6 +26,7 @@
     "nodemailer": "^6.9.7",
     "path": "^0.12.7",
     "socket.io": "^4.7.5",
+    "stripe": "^15.6.0",
     "twilio": "^3.40.0",
     "winston": "^3.13.0"
   },

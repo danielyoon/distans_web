@@ -18,6 +18,8 @@ router.post("/check-out", authorize(), checkOut);
 router.post("/get-qr-data", getQrData);
 router.post("/add-friend", authorize(), addFriend);
 router.get("/get-friends", authorize(), getFriends);
+router.post("/create-payment-intent", authorize(), createPaymentIntent);
+router.post("/upgrade-account", authorize(), upgradeAccount);
 
 router.post("/test-login", testLogin);
 
@@ -197,6 +199,32 @@ function addFriend(req, res, next) {
 function getFriends(req, res, next) {
   userService
     .getFriends(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function createPaymentIntent(req, res, next) {
+  userService
+    .createPaymentIntent(req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function upgradeAccount(req, res, next) {
+  userService
+    .upgradeAccount(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);

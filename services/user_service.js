@@ -4,6 +4,7 @@ var jwt = require("jsonwebtoken"),
   { LOGIN, CHECK } = require("../components/enums"),
   sendEmail = require("../components/send_email"),
   client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN),
+  stripe = require("stripe")(process.env.STRIPE_KEY),
   SERVICE_ID = process.env.SERVICE_ID,
   db = require("../components/mongo.js");
 
@@ -22,6 +23,8 @@ module.exports = {
   getQrData,
   addFriend,
   getFriends,
+  createPaymentIntent,
+  upgradeAccount,
   testLogin,
 };
 
@@ -399,6 +402,26 @@ async function getFriends(id) {
   return { status: "SUCCESS", data: friendsData };
 }
 
+async function createPaymentIntent() {
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: 500,
+    currency: "usd",
+  });
+
+  return { status: "SUCCESS", data: paymentIntent.client_secret };
+}
+
+async function upgradeAccount(id, params) {
+  if (params.isSubscription) {
+    const customer = await stripe.customers.create({
+      name: params.name,
+      phone: params.phoneNumber,
+    });
+
+    const paymentMethod = await stripe.paymentMethod.attach();
+  }
+}
+
 async function testLogin(params) {
   if (params.pin == 2024) {
     return {
@@ -411,6 +434,7 @@ async function testLogin(params) {
   }
 }
 
+// Helper functions
 function generateJwtToken(user) {
   return jwt.sign({ sub: user.id, id: user.id }, process.env.SECRET_OR_KEY, {
     expiresIn: "1h",
