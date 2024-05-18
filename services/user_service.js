@@ -372,55 +372,47 @@ async function addFriend(id, encryptedParams) {
 }
 
 async function getFriends(id) {
+  console.log(`Fetching user with ID: ${id}`);
+
+  // Fetch user and populate friends along with their currentLocation
   let user = await db.User.findById(id).populate({
     path: "friends",
-    populate: { path: "currentLocation" },
+    populate: { path: "currentLocation" }, // This will populate the currentLocation field for each friend
   });
+
+  console.log(`Total friends found: ${user.friends.length}`);
 
   let existingFriends = user.friends.filter((friend) => friend !== null);
 
+  console.log(`Friends after filtering nulls: ${existingFriends.length}`);
+
   existingFriends = await Promise.all(
     existingFriends.map(async (friend) => {
-      const exists = await db.User.findById(friend._id).populate(
-        "currentLocation"
-      );
+      const exists = await db.User.findById(friend._id);
       return exists ? friend : null;
     })
   );
 
   existingFriends = existingFriends.filter((friend) => friend !== null);
 
+  console.log(`Friends after re-checking existence: ${existingFriends.length}`);
+
   if (existingFriends.length !== user.friends.length) {
     user.friends = existingFriends.map((friend) => friend._id);
     await user.save();
+    console.log("Updated user friends list after existence check.");
   }
 
-  console.log("Mapping friend data to include location name...");
-  const friendsData = existingFriends.map((friend) => {
-    console.log(`Current friend ID: ${friend._id}`);
-    if (friend.currentLocation) {
-      console.log(
-        `Current Location for ${friend.firstName}: ${friend.currentLocation.name}`
-      );
-    } else {
-      console.log(
-        `Current Location for ${friend.firstName}: Location data not available`
-      );
-    }
+  const friendsData = existingFriends.map((friend) => ({
+    id: friend._id,
+    firstName: friend.firstName,
+    lastName: friend.lastName,
+    photo: friend.photo,
+    currentLocation: friend.currentLocation ? friend.currentLocation.name : "", // Check if currentLocation exists, else return empty string
+    time: friend.time,
+  }));
 
-    return {
-      id: friend._id,
-      firstName: friend.firstName,
-      lastName: friend.lastName,
-      photo: friend.photo,
-      currentLocation: friend.currentLocation
-        ? friend.currentLocation.name
-        : "Unknown",
-      time: friend.time,
-    };
-  });
-
-  console.log(friendsData);
+  console.log("Final friends data prepared for return:", friendsData);
 
   return { status: "SUCCESS", data: friendsData };
 }
