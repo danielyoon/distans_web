@@ -372,13 +372,18 @@ async function addFriend(id, encryptedParams) {
 }
 
 async function getFriends(id) {
-  let user = await db.User.findById(id).populate("friends");
+  let user = await db.User.findById(id).populate({
+    path: "friends",
+    populate: { path: "currentLocation" },
+  });
 
   let existingFriends = user.friends.filter((friend) => friend !== null);
 
   existingFriends = await Promise.all(
     existingFriends.map(async (friend) => {
-      const exists = await db.User.findById(friend._id);
+      const exists = await db.User.findById(friend._id).populate(
+        "currentLocation"
+      );
       return exists ? friend : null;
     })
   );
@@ -395,7 +400,7 @@ async function getFriends(id) {
     firstName: friend.firstName,
     lastName: friend.lastName,
     photo: friend.photo,
-    currentLocation: friend.currentLocation,
+    currentLocation: friend.currentLocation ? friend.currentLocation.name : "",
     time: friend.time,
   }));
 
