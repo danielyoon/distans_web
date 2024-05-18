@@ -395,14 +395,32 @@ async function getFriends(id) {
     await user.save();
   }
 
-  const friendsData = existingFriends.map((friend) => ({
-    id: friend._id,
-    firstName: friend.firstName,
-    lastName: friend.lastName,
-    photo: friend.photo,
-    currentLocation: friend.currentLocation ? friend.currentLocation.name : "",
-    time: friend.time,
-  }));
+  console.log("Mapping friend data to include location name...");
+  const friendsData = existingFriends.map((friend) => {
+    console.log(`Current friend ID: ${friend._id}`);
+    if (friend.currentLocation) {
+      console.log(
+        `Current Location for ${friend.firstName}: ${friend.currentLocation.name}`
+      );
+    } else {
+      console.log(
+        `Current Location for ${friend.firstName}: Location data not available`
+      );
+    }
+
+    return {
+      id: friend._id,
+      firstName: friend.firstName,
+      lastName: friend.lastName,
+      photo: friend.photo,
+      currentLocation: friend.currentLocation
+        ? friend.currentLocation.name
+        : "Unknown",
+      time: friend.time,
+    };
+  });
+
+  console.log(friendsData);
 
   return { status: "SUCCESS", data: friendsData };
 }
