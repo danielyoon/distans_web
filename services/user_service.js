@@ -372,19 +372,12 @@ async function addFriend(id, encryptedParams) {
 }
 
 async function getFriends(id) {
-  console.log(`Fetching user with ID: ${id}`);
-
-  // Fetch user and populate friends along with their currentLocation
   let user = await db.User.findById(id).populate({
     path: "friends",
-    populate: { path: "currentLocation" }, // This will populate the currentLocation field for each friend
+    populate: { path: "currentLocation" },
   });
 
-  console.log(`Total friends found: ${user.friends.length}`);
-
   let existingFriends = user.friends.filter((friend) => friend !== null);
-
-  console.log(`Friends after filtering nulls: ${existingFriends.length}`);
 
   existingFriends = await Promise.all(
     existingFriends.map(async (friend) => {
@@ -395,12 +388,9 @@ async function getFriends(id) {
 
   existingFriends = existingFriends.filter((friend) => friend !== null);
 
-  console.log(`Friends after re-checking existence: ${existingFriends.length}`);
-
   if (existingFriends.length !== user.friends.length) {
     user.friends = existingFriends.map((friend) => friend._id);
     await user.save();
-    console.log("Updated user friends list after existence check.");
   }
 
   const friendsData = existingFriends.map((friend) => ({

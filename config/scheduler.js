@@ -101,18 +101,17 @@ async function handleExpiredQrCodes() {
 
 async function handleDemoUser() {
   try {
-    const demoUser = await db.User.find({
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+    console.log(demoUser.createdAt);
+
+    const result = await db.User.deleteMany({
       phoneNumber: 5553478267,
+      createdAt: { $lt: twoDaysAgo },
     });
 
-    if (demoUser) {
-      const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-
-      if (demoUser.createdAt < twoDaysAgo) {
-        await db.User.deleteOne({ _id: demoUser._id });
-      }
-    }
+    console.log(`Deleted ${result.deletedCount} user(s).`);
   } catch (error) {
-    console.error("Error in handleExpiredQrCodes:", error);
+    console.error("Error in handleDemoUser:", error);
   }
 }
