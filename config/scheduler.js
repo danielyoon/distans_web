@@ -107,8 +107,6 @@ async function handleDemoUser() {
       phoneNumber: 5553478267,
       createdAt: { $lt: twoDaysAgo },
     });
-
-    console.log(`Deleted ${result.deletedCount} user(s).`);
   } catch (error) {
     console.error("Error in handleDemoUser:", error);
   }

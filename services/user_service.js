@@ -372,10 +372,8 @@ async function addFriend(id, encryptedParams) {
 }
 
 async function getFriends(id) {
-  let user = await db.User.findById(id).populate({
-    path: "friends",
-    populate: { path: "currentLocation" },
-  });
+  let user = await db.User.findById(id).populate("friends");
+  console.log("Initial friends count:", user.friends.length);
 
   let existingFriends = user.friends.filter((friend) => friend !== null);
 
@@ -387,6 +385,7 @@ async function getFriends(id) {
   );
 
   existingFriends = existingFriends.filter((friend) => friend !== null);
+  console.log("Filtered friends count:", existingFriends.length);
 
   if (existingFriends.length !== user.friends.length) {
     user.friends = existingFriends.map((friend) => friend._id);
@@ -398,7 +397,7 @@ async function getFriends(id) {
     firstName: friend.firstName,
     lastName: friend.lastName,
     photo: friend.photo,
-    currentLocation: friend.currentLocation ? friend.currentLocation.name : "", // Check if currentLocation exists, else return empty string
+    currentLocation: friend.currentLocation,
     time: friend.time,
   }));
 
