@@ -373,8 +373,6 @@ async function addFriend(id, encryptedParams) {
 
 async function getFriends(id) {
   let user = await db.User.findById(id).populate("friends");
-  console.log("Initial friends count:", user.friends.length);
-
   let existingFriends = user.friends.filter((friend) => friend !== null);
 
   existingFriends = await Promise.all(
@@ -385,21 +383,30 @@ async function getFriends(id) {
   );
 
   existingFriends = existingFriends.filter((friend) => friend !== null);
-  console.log("Filtered friends count:", existingFriends.length);
 
   if (existingFriends.length !== user.friends.length) {
     user.friends = existingFriends.map((friend) => friend._id);
     await user.save();
   }
 
-  const friendsData = existingFriends.map((friend) => ({
-    id: friend._id,
-    firstName: friend.firstName,
-    lastName: friend.lastName,
-    photo: friend.photo,
-    currentLocation: friend.currentLocation,
-    time: friend.time,
-  }));
+  let friendsData = await Promise.all(
+    existingFriends.map(async (friend) => {
+      let currentLocation = "";
+      if (friend.currentLocation) {
+        const place = await db.Place.findById(friend.currentLocation);
+        currentLocation = place ? place.name : "";
+      }
+
+      return {
+        id: friend._id,
+        firstName: friend.firstName,
+        lastName: friend.lastName,
+        photo: friend.photo,
+        currentLocation: currentLocation,
+        time: friend.time,
+      };
+    })
+  );
 
   console.log("Final friends data prepared for return:", friendsData);
 
