@@ -103,8 +103,6 @@ async function handleDemoUser() {
   try {
     const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 
-    console.log(demoUser.createdAt);
-
     const result = await db.User.deleteMany({
       phoneNumber: 5553478267,
       createdAt: { $lt: twoDaysAgo },
