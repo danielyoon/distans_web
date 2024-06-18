@@ -20,6 +20,7 @@ const schema = new Schema(
     },
     users: { type: Array, default: [] },
     capacity: Number,
+    tobe: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
   },
   {

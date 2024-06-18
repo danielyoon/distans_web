@@ -26,7 +26,10 @@ async function getNearbyPlaces(params) {
   const geoQuery = {
     location: {
       $geoWithin: {
-        $centerSphere: [[params.longitude, params.latitude], 0.0025232],
+        $box: [
+          [params.west, params.south],
+          [params.east, params.north],
+        ],
       },
     },
     approved: true,

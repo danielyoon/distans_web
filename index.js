@@ -6,17 +6,14 @@ const express = require("express"),
   morgan = require("morgan"),
   cookieParser = require("cookie-parser"),
   cors = require("cors"),
-  cron = require("node-cron"),
   errorHandler = require("./config/error_handler"),
-  scheduler = require("./config/scheduler"),
   // rateLimit = require("express-rate-limit"),
-  path = require("path"),
-  server = require("http").createServer(app),
-  // socket = require("./services/socket_service"),
-  port = process.env.PORT || 5000;
+  path = require("path");
 
+// Middleware setup
 app.use(helmet());
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 // const limiter = rateLimit({
 //   windowMs: 10 * 60 * 1000,
@@ -25,9 +22,6 @@ app.use(morgan("dev"));
 // });
 
 // app.use(limiter);
-app.set("trust proxy", 1);
-
-app.use(cookieParser());
 
 app.use(
   cors({
@@ -43,7 +37,6 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/users", require("./controllers/user_controller"));
@@ -54,13 +47,25 @@ app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// socket(server);
-
+// Error handling middleware
 app.use(errorHandler);
 
-cron.schedule("*/5 * * * *", scheduler);
+// Export the app for testing
+module.exports = app;
 
-server.listen(port, () => {
-  scheduler();
-  console.log(`Listening to port: ${port}`);
-});
+// Separate server setup for running the app
+if (require.main === module) {
+  const port = process.env.PORT || 5000,
+    server = require("http").createServer(app),
+    initScheduler = require("./config/scheduler_init");
+
+  // Initialize the scheduler
+  initScheduler();
+
+  // socket(server);
+
+  server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+    scheduler();
+  });
+}
