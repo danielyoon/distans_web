@@ -18,6 +18,8 @@ router.post("/check-out", authorize(), checkOut);
 router.post("/get-qr-data", getQrData);
 router.post("/add-friend", authorize(), addFriend);
 router.get("/get-friends", authorize(), getFriends);
+router.post("/post-eta", authorize(), postEta);
+router.get("/get-eta", authorize(), getETA);
 router.post("/create-payment-intent", authorize(), createPaymentIntent);
 router.post("/upgrade-account", authorize(), upgradeAccount);
 
@@ -199,6 +201,32 @@ function addFriend(req, res, next) {
 function getFriends(req, res, next) {
   userService
     .getFriends(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function postEta(req, res, next) {
+  userService
+    .postEta(req.auth.id, req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getETA(req, res, next) {
+  userService
+    .getETA(req.auth.id)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);

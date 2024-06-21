@@ -23,6 +23,8 @@ module.exports = {
   getQrData,
   addFriend,
   getFriends,
+  postEta,
+  getETA,
   createPaymentIntent,
   upgradeAccount,
   testLogin,
@@ -408,9 +410,64 @@ async function getFriends(id) {
     })
   );
 
-  console.log("Final friends data prepared for return:", friendsData);
-
   return { status: "SUCCESS", data: friendsData };
+}
+
+async function postEta(id, params) {
+  const user = await db.User.findById(id);
+  const place = await db.Place.findById(params.placeId);
+
+  if (!user || !place) {
+    throw new Error("User or Place not found.");
+  }
+
+  // Use the parseTime function to parse the time
+  const eventTime = parseTime(params.time);
+
+  // Check if the user already has an ETA that overlaps with the new one
+  const userHasOverlappingEta = user.eta.some(
+    (existingEta) =>
+      new Date(existingEta.time).getTime() === eventTime.getTime()
+  );
+
+  // Check if the user is already supposed to be at the place
+  const userAlreadyAtPlace = place.eta.some(
+    (existingEta) => existingEta.user.toString() === id.toString()
+  );
+
+  if (userHasOverlappingEta) {
+    throw new Error("User already has an event scheduled for this time.");
+  }
+
+  if (userAlreadyAtPlace) {
+    throw new Error("User is already supposed to be at this location.");
+  }
+
+  const eta = {
+    user: id,
+    time: eventTime,
+    place: params.placeId,
+  };
+
+  user.eta.push(eta);
+  place.eta.push(eta);
+
+  await user.save();
+  await place.save();
+
+  return {
+    status: "SUCCESS",
+    data: eta,
+  };
+}
+
+async function getETA(id) {
+  const user = await db.User.findById(id);
+
+  return {
+    status: "SUCCESS",
+    data: user.eta,
+  };
 }
 
 async function createPaymentIntent() {
@@ -549,4 +606,18 @@ function createUserData(user, newRefreshToken, jwtToken) {
     refreshToken: newRefreshToken.token,
     jwtToken,
   };
+}
+
+function parseTime(timeStr) {
+  if (!/^\d{4}$/.test(timeStr)) {
+    throw new Error("Invalid time format. Expected HHMM.");
+  }
+
+  const hours = parseInt(timeStr.slice(0, 2), 10);
+  const minutes = parseInt(timeStr.slice(2), 10);
+
+  const eventTime = new Date();
+  eventTime.setHours(hours, minutes, 0, 0);
+
+  return eventTime;
 }
