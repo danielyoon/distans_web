@@ -1,6 +1,6 @@
 var db = require("../components/mongo.js");
 
-module.exports = eta_reset;
+module.exports = etaReset;
 
 async function etaReset() {
   try {
