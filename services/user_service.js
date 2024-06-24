@@ -24,7 +24,8 @@ module.exports = {
   addFriend,
   getFriends,
   postEta,
-  getETA,
+  getEta,
+  deleteEta,
   createPaymentIntent,
   upgradeAccount,
   testLogin,
@@ -461,13 +462,27 @@ async function postEta(id, params) {
   };
 }
 
-async function getETA(id) {
+async function getEta(id) {
   const user = await db.User.findById(id);
 
   return {
     status: "SUCCESS",
     data: user.eta,
   };
+}
+
+async function deleteEta(id, params) {
+  const place = await db.Place.findById(params.id);
+
+  if (!place) {
+    return { status: "FAILURE", message: "Place not found" };
+  }
+
+  place.eta = place.eta.filter((item) => item.id !== id);
+
+  await place.save();
+
+  return { status: "SUCCESS" };
 }
 
 async function createPaymentIntent() {
