@@ -478,7 +478,7 @@ async function deleteEta(id, params) {
     return { status: "FAILURE", message: "Place not found" };
   }
 
-  place.eta = place.eta.filter((item) => item.id !== id);
+  place.eta = place.eta.filter((item) => item.user !== id);
 
   await place.save();
 
