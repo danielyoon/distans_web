@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    role: { type: String, enum: ["User", "Basic", "Admin"], default: "User" },
+    role: { type: String, enum: ["User", "Premium", "Admin"], default: "User" },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     photo: String,

@@ -21,7 +21,7 @@ router.get("/get-friends", authorize(), getFriends);
 router.post("/post-eta", authorize(), postEta);
 router.get("/get-eta", authorize(), getETA);
 router.delete("/delete-eta", authorize(), deleteEta);
-router.post("/create-payment-intent", authorize(), createPaymentIntent);
+router.post("/create-payment-intent", createPaymentIntent);
 router.post("/upgrade-account", authorize(), upgradeAccount);
 
 router.post("/test-login", testLogin);
@@ -253,7 +253,7 @@ function deleteEta(req, res, next) {
 
 function createPaymentIntent(req, res, next) {
   userService
-    .createPaymentIntent(req.body)
+    .createPaymentIntent()
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);
@@ -269,7 +269,7 @@ function upgradeAccount(req, res, next) {
     .upgradeAccount(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.status(200).json(result.data);
+        res.sendStatus(200);
       } else {
         res.sendStatus(404);
       }

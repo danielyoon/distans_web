@@ -8,6 +8,7 @@ const LOGIN = {
 const ROLE = {
   Admin: "Admin",
   User: "User",
+  Premium: "Premium",
 };
 
 const TOKEN = {

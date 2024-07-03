@@ -495,13 +495,42 @@ async function createPaymentIntent() {
 }
 
 async function upgradeAccount(id, params) {
-  if (params.isSubscription) {
-    const customer = await stripe.customers.create({
-      name: params.name,
-      phone: params.phoneNumber,
-    });
+  try {
+    // Find the user in your database
+    const user = await db.User.findById(id);
 
-    const paymentMethod = await stripe.paymentMethod.attach();
+    // Check if the customer already exists on Stripe
+    let customer;
+    try {
+      customer = await stripe.customers.retrieve(id);
+    } catch (error) {
+      if (
+        error.type === "StripeInvalidRequestError" &&
+        error.code === "resource_missing"
+      ) {
+        customer = null;
+      } else {
+        throw error;
+      }
+    }
+
+    // If the customer does not exist, create a new one
+    if (!customer) {
+      customer = await stripe.customers.create({
+        id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        phone: user.phoneNumber,
+      });
+    }
+
+    // Update the user role to 'Premium'
+    user.role = "Premium";
+    await user.save();
+
+    return { status: "SUCCESS", message: "Account upgraded to Premium" };
+  } catch (error) {
+    console.error("Error in upgradeAccount function:", error);
+    return { status: "ERROR", message: error.message };
   }
 }
 
