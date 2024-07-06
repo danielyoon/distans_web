@@ -415,12 +415,12 @@ async function getFriends(id) {
 }
 
 async function postEta(id, params) {
+  console.log(params);
+  console.log(params.id);
+
   try {
     const user = await db.User.findById(id);
     const place = await db.Place.findById(params.placeId);
-
-    console.log("User:", user);
-    console.log("Place:", place);
 
     if (!user || !place) {
       console.error("User or Place not found.");
