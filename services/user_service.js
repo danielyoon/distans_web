@@ -416,7 +416,7 @@ async function getFriends(id) {
 
 async function postEta(id, params) {
   console.log(params);
-  console.log(params.id);
+  console.log(params.placeId);
 
   try {
     const user = await db.User.findById(id);
