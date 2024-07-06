@@ -415,53 +415,64 @@ async function getFriends(id) {
 }
 
 async function postEta(id, params) {
-  const user = await db.User.findById(id);
-  const place = await db.Place.findById(params.placeId);
+  try {
+    const user = await db.User.findById(id);
+    const place = await db.Place.findById(params.placeId);
 
-  console.log(params);
+    console.log("User:", user);
+    console.log("Place:", place);
 
-  if (!user || !place) {
-    throw new Error("User or Place not found.");
+    if (!user || !place) {
+      console.error("User or Place not found.");
+      throw new Error("User or Place not found.");
+    }
+
+    // Use the parseTime function to parse the time
+    const eventTime = parseTime(params.time);
+
+    // Check if the user already has an ETA that overlaps with the new one
+    const userHasOverlappingEta = user.eta.some(
+      (existingEta) =>
+        new Date(existingEta.time).getTime() === eventTime.getTime()
+    );
+
+    // Check if the user is already supposed to be at the place
+    const userAlreadyAtPlace = place.eta.some(
+      (existingEta) => existingEta.user.toString() === id.toString()
+    );
+
+    if (userHasOverlappingEta) {
+      console.error("User already has an event scheduled for this time.");
+      throw new Error("User already has an event scheduled for this time.");
+    }
+
+    if (userAlreadyAtPlace) {
+      console.error("User is already supposed to be at this location.");
+      throw new Error("User is already supposed to be at this location.");
+    }
+
+    const eta = {
+      user: id,
+      time: eventTime,
+      place: params.placeId,
+    };
+
+    user.eta.push(eta);
+    place.eta.push(eta);
+
+    await user.save();
+    await place.save();
+
+    console.log("ETA successfully saved:", eta);
+
+    return {
+      status: "SUCCESS",
+      data: eta,
+    };
+  } catch (error) {
+    console.error("Error in postEta function:", error);
+    throw error;
   }
-
-  // Use the parseTime function to parse the time
-  const eventTime = parseTime(params.time);
-
-  // Check if the user already has an ETA that overlaps with the new one
-  const userHasOverlappingEta = user.eta.some(
-    (existingEta) =>
-      new Date(existingEta.time).getTime() === eventTime.getTime()
-  );
-
-  // Check if the user is already supposed to be at the place
-  const userAlreadyAtPlace = place.eta.some(
-    (existingEta) => existingEta.user.toString() === id.toString()
-  );
-
-  if (userHasOverlappingEta) {
-    throw new Error("User already has an event scheduled for this time.");
-  }
-
-  if (userAlreadyAtPlace) {
-    throw new Error("User is already supposed to be at this location.");
-  }
-
-  const eta = {
-    user: id,
-    time: eventTime,
-    place: params.placeId,
-  };
-
-  user.eta.push(eta);
-  place.eta.push(eta);
-
-  await user.save();
-  await place.save();
-
-  return {
-    status: "SUCCESS",
-    data: eta,
-  };
 }
 
 async function getEta(id) {
