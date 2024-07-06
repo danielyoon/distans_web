@@ -266,7 +266,7 @@ function createPaymentIntent(req, res, next) {
 
 function upgradeAccount(req, res, next) {
   userService
-    .upgradeAccount(req.auth.id, req.body)
+    .upgradeAccount(req.auth.id)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.sendStatus(200);

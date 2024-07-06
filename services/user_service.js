@@ -418,6 +418,8 @@ async function postEta(id, params) {
   const user = await db.User.findById(id);
   const place = await db.Place.findById(params.placeId);
 
+  console.log(params);
+
   if (!user || !place) {
     throw new Error("User or Place not found.");
   }
@@ -494,7 +496,7 @@ async function createPaymentIntent() {
   return { status: "SUCCESS", data: paymentIntent.client_secret };
 }
 
-async function upgradeAccount(id, params) {
+async function upgradeAccount(id) {
   try {
     // Find the user in your database
     const user = await db.User.findById(id);
