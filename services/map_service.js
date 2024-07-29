@@ -10,6 +10,8 @@ async function createPlace(id, params) {
   const place = new db.Place({
     name: params.name,
     description: params.description,
+    type: params.type,
+    isPrivate: params.isPrivate,
     requestedBy: id,
     location: {
       type: "Point",

@@ -6,6 +6,7 @@ const schema = new Schema(
     name: { type: String, required: true },
     description: { type: String },
     type: { type: String, default: "Unknown" },
+    isPrivate: Boolean,
     approved: { type: Boolean, default: false },
     requestedBy: { type: String, required: true },
     location: {

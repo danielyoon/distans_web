@@ -3,7 +3,7 @@ var express = require("express"),
   authorize = require("../config/authorize"),
   mapService = require("../services/map_service");
 
-router.post("/create-place", authorize(), createPlace);
+router.post("/create-place", authorize(Role.Admin), createPlace);
 router.post("/get-nearby-places", getNearbyPlaces);
 router.post("/get-place-data", getPlaceData);
 

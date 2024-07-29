@@ -8,6 +8,7 @@ var jwt = require("jsonwebtoken"),
   SERVICE_ID = process.env.SERVICE_ID,
   db = require("../components/mongo.js");
 
+//TODO: All functions have to be re-made to use try-catch to discover possible errors
 module.exports = {
   loginWithPhoneNumber,
   verifyPinNumber,
