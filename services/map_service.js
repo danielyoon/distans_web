@@ -4,7 +4,7 @@ module.exports = {
   createPlace,
   getNearbyPlaces,
   getPlaceData,
-  getPrivatePlace,
+  getPrivatePlaces,
 };
 
 async function createPlace(id, params) {
@@ -64,7 +64,7 @@ async function getPlaceData(params) {
   return { status: "SUCCESS", data: placeData };
 }
 
-async function getPrivatePlace(id) {
+async function getPrivatePlaces(id) {
   const user = await db.User.findById(id);
 
   return { status: "SUCCESS", data: user.privatePlaces };

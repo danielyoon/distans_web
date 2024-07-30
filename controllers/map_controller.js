@@ -7,7 +7,7 @@ var express = require("express"),
 router.post("/create-place", authorize(ROLE.Admin), createPlace);
 router.post("/get-nearby-places", getNearbyPlaces);
 router.post("/get-place-data", getPlaceData);
-router.get("/get-private-place", authorize(), getPrivatePlace);
+router.get("/get-private-places", authorize(), getPrivatePlaces);
 
 module.exports = router;
 
@@ -50,9 +50,9 @@ function getPlaceData(req, res, next) {
     .catch(next);
 }
 
-function getPrivatePlace(req, res, next) {
+function getPrivatePlaces(req, res, next) {
   mapService
-    .getPrivatePlace(req.auth.id)
+    .getPrivatePlaces(req.auth.id)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.json(result.data);
