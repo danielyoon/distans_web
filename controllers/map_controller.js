@@ -7,6 +7,7 @@ var express = require("express"),
 router.post("/create-place", authorize(ROLE.Admin), createPlace);
 router.post("/get-nearby-places", getNearbyPlaces);
 router.post("/get-place-data", getPlaceData);
+router.get("/get-private-place", authorize(), getPrivatePlace);
 
 module.exports = router;
 
@@ -39,6 +40,19 @@ function getNearbyPlaces(req, res, next) {
 function getPlaceData(req, res, next) {
   mapService
     .getPlaceData(req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getPrivatePlace(req, res, next) {
+  mapService
+    .getPrivatePlace(req.auth.id)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.json(result.data);

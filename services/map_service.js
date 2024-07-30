@@ -4,6 +4,7 @@ module.exports = {
   createPlace,
   getNearbyPlaces,
   getPlaceData,
+  getPrivatePlace,
 };
 
 async function createPlace(id, params) {
@@ -35,6 +36,7 @@ async function getNearbyPlaces(params) {
       },
     },
     approved: true,
+    isPrivate: { $ne: true },
   };
 
   let nearbyPlaces = await db.Place.find(geoQuery);
@@ -50,3 +52,5 @@ async function getPlaceData(params) {
 
   return { status: "SUCCESS", data: placeData };
 }
+
+async function getPrivatePlace(id) {}
