@@ -7,7 +7,6 @@ module.exports = {
   getPrivatePlace,
 };
 
-//TODO: If isPrivate, add it to user's privatePlaces
 async function createPlace(id, params) {
   const place = new db.Place({
     name: params.name,
@@ -65,4 +64,8 @@ async function getPlaceData(params) {
   return { status: "SUCCESS", data: placeData };
 }
 
-async function getPrivatePlace(id) {}
+async function getPrivatePlace(id) {
+  const user = await db.User.findById(id);
+
+  return { status: "SUCCESS", data: user.privatePlaces };
+}
