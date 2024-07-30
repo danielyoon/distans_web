@@ -1,9 +1,10 @@
 var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
+  { ROLE } = require("../components/enums"),
   mapService = require("../services/map_service");
 
-router.post("/create-place", authorize(Role.Admin), createPlace);
+router.post("/create-place", authorize(ROLE.Admin), createPlace);
 router.post("/get-nearby-places", getNearbyPlaces);
 router.post("/get-place-data", getPlaceData);
 
