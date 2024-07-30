@@ -29,6 +29,8 @@ async function createPlace(id, params) {
       user.privatePlaces = [];
     }
 
+    place.approved = true;
+
     user.privatePlaces.push(place._id);
     await user.save();
   }
@@ -65,7 +67,7 @@ async function getPlaceData(params) {
 }
 
 async function getPrivatePlaces(id) {
-  const user = await db.User.findById(id);
+  const user = await db.User.findById(id).populate("privatePlaces");
 
   return { status: "SUCCESS", data: user.privatePlaces };
 }
