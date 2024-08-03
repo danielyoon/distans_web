@@ -1,5 +1,5 @@
-var db = require("../components/mongo.js"),
-  { v4: uuidv4 } = require("uuid");
+var db = require("../components/mongo.js");
+// { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   createAppCoupon,
