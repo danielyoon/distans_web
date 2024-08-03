@@ -42,6 +42,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/users", require("./controllers/user_controller"));
 app.use("/maps", require("./controllers/map_controller"));
 app.use("/admin", require("./controllers/admin_controller"));
+app.use("/coupons", require("./controllers/coupon_controller"));
 
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "public", "index.html"));

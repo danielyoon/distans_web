@@ -20,6 +20,7 @@ const schema = new Schema(
     privatePlaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "Place" }],
     eta: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
+    coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
   },
   {
     timestamps: true,

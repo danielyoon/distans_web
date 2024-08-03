@@ -25,10 +25,6 @@ async function createPlace(id, params) {
   if (params.isPrivate) {
     const user = await db.User.findById(id);
 
-    if (!user.privatePlaces) {
-      user.privatePlaces = [];
-    }
-
     place.approved = true;
 
     user.privatePlaces.push(place._id);

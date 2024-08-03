@@ -9,6 +9,7 @@ var jwt = require("jsonwebtoken"),
   db = require("../components/mongo.js");
 
 //TODO: All functions have to be re-made to use try-catch to discover possible errors
+//TODO: All non-auth functions should be moved to their own respective controllers ie time, friends, etc
 module.exports = {
   loginWithPhoneNumber,
   verifyPinNumber,
