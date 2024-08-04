@@ -16,8 +16,8 @@ async function createAppCoupon(params) {
     id: params.id,
     placeId: "distans",
     description: params.description,
-    amount: params.amount,
-    image: params.image,
+    amount: params.amount !== undefined ? params.amount : 0,
+    image: params.image !== undefined ? params.image : null,
     punches: params.punches !== undefined ? params.punches : null,
     expiry: params.expiry !== undefined ? params.expiry : null,
   });

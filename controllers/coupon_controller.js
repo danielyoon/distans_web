@@ -1,7 +1,7 @@
 var express = require("express"),
   router = express.Router(),
-  { ROLE } = require("../components/enums"),
   authorize = require("../config/authorize"),
+  { ROLE } = require("../components/enums"),
   couponService = require("../services/coupon_service");
 
 router.post("/create-app-coupon", authorize(ROLE.Admin), createAppCoupon);
