@@ -5,6 +5,7 @@ var express = require("express"),
   couponService = require("../services/coupon_service");
 
 router.post("/create-app-coupon", authorize(), createAppCoupon);
+router.post("/coupon-test", couponTest);
 // router.post("/create-coupon", authorize(), createCoupon);
 // router.get("/get-coupons", authorize(), getCoupons);
 // router.post("/get-place-coupons", authorize(), getPlaceCoupons);
@@ -12,6 +13,10 @@ router.post("/create-app-coupon", authorize(), createAppCoupon);
 // router.post("/delete-coupon", authorize(), deleteCoupon);
 
 module.exports = router;
+
+function couponTest(req, res, next) {
+  console.log("TEST WORKS HERE!");
+}
 
 function createAppCoupon(req, res, next) {
   couponService
