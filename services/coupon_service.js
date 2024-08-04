@@ -1,13 +1,7 @@
 var db = require("../components/mongo.js");
-// { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   createAppCoupon,
-  createCoupon,
-  getCoupons,
-  getPlaceCoupons,
-  redeemCoupon,
-  deleteCoupon,
 };
 
 //TODO: Use app logo for this
@@ -28,13 +22,3 @@ async function createAppCoupon(params) {
 
   return { status: "SUCCESS" };
 }
-
-async function createCoupon(id, params) {}
-
-async function getCoupons(id) {}
-
-async function getPlaceCoupons(id) {}
-
-async function redeemCoupon(id, params) {}
-
-async function deleteCoupon(id, params) {}
