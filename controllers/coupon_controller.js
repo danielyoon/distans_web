@@ -14,8 +14,6 @@ router.post("/delete-coupon", authorize(), deleteCoupon);
 module.exports = router;
 
 function createAppCoupon(req, res, next) {
-  console.log(req.body);
-
   couponService
     .createAppCoupon(req.body)
     .then((result) => {
