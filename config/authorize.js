@@ -18,6 +18,8 @@ function authorize(roles = []) {
     async (req, res, next) => {
       const user = await db.User.findById(req.auth.id);
 
+      console.log(user);
+
       if (!user || (roles.length && !roles.includes(user.role))) {
         return res.status(401).json({ message: "Unauthorized" });
       }
