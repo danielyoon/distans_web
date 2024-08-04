@@ -12,6 +12,8 @@ module.exports = {
 
 //TODO: Use app logo for this
 async function createAppCoupon(params) {
+  console.log(params);
+
   let coupon = new db.Coupon({
     id: params.id,
     placeId: "distans",
