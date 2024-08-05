@@ -1,6 +1,10 @@
 {
   "name": "distans_web",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.8.2"
+  },
   "description": "Backend of distans",
   "main": "index.js",
   "scripts": {
