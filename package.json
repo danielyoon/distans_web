@@ -2,8 +2,8 @@
   "name": "distans_web",
   "version": "1.0.0",
   "engines": {
-    "node": "22.x",
-    "npm": "10.8.2"
+    "node": "20.x",
+    "npm": "10.8.1"
   },
   "description": "Backend of distans",
   "main": "index.js",
