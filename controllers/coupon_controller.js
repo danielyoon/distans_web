@@ -10,10 +10,10 @@ module.exports = router;
 
 function createAppCoupon(req, res, next) {
   couponService
-    .createAppCoupon(req.body)
+    .createAppCoupon(req.auth.id, req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.sendStatus(200);
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }

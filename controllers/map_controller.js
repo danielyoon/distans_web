@@ -29,7 +29,7 @@ function getNearbyPlaces(req, res, next) {
     .getNearbyPlaces(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.json(result.data);
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }
@@ -42,7 +42,7 @@ function getPlaceData(req, res, next) {
     .getPlaceData(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.json(result.data);
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }
@@ -55,7 +55,7 @@ function getPrivatePlaces(req, res, next) {
     .getPrivatePlaces(req.auth.id)
     .then((result) => {
       if (result.status === "SUCCESS") {
-        res.json(result.data);
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }

@@ -18,5 +18,5 @@ async function createAppCoupon(id, params) {
 
   await coupon.save();
 
-  return { status: "SUCCESS" };
+  return { status: "SUCCESS", data: coupon };
 }
