@@ -4,14 +4,9 @@ var express = require("express"),
   { ROLE } = require("../components/enums"),
   couponService = require("../services/coupon_service");
 
-router.post("/create-app-coupon", authorize(), createAppCoupon);
-router.post("/coupon-test", authorize(), couponTest);
+router.post("/create-app-coupon", authorize(ROLE.Admin), createAppCoupon);
 
 module.exports = router;
-
-function couponTest(req, res, next) {
-  console.log("TEST WORKS HERE!");
-}
 
 function createAppCoupon(req, res, next) {
   couponService
