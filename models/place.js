@@ -8,7 +8,11 @@ const schema = new Schema(
     type: { type: String, default: "Unknown" },
     isPrivate: Boolean,
     approved: { type: Boolean, default: false },
-    requestedBy: { type: String, required: true },
+    requestedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     location: {
       type: {
         type: String,
