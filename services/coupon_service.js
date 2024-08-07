@@ -5,6 +5,9 @@ module.exports = {
 };
 
 async function createAppCoupon(id, params) {
+  console.log(id);
+  console.log(params);
+
   let coupon = new db.Coupon({
     id: params.id,
     createdBy: id,
@@ -15,6 +18,9 @@ async function createAppCoupon(id, params) {
     expiry: params.expiry !== undefined ? params.expiry : null,
     isAppCoupon: true,
   });
+
+  console.log("Coupon:");
+  console.log(coupon);
 
   await coupon.save();
 
