@@ -22,7 +22,11 @@ async function createAppCoupon(id, params) {
   console.log("Coupon:");
   console.log(coupon);
 
-  await coupon.save();
-
-  return { status: "SUCCESS", data: coupon };
+  try {
+    await coupon.save();
+    return { status: "SUCCESS", data: coupon };
+  } catch (error) {
+    console.error("Error saving coupon:", error);
+    return { status: "ERROR", error: error.message };
+  }
 }
