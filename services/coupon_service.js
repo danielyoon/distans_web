@@ -5,6 +5,8 @@ module.exports = {
 };
 
 async function createAppCoupon(id, params) {
+  console.log(params);
+  console.log(id);
   let coupon = new db.Coupon({
     name: params.id,
     createdBy: id,
