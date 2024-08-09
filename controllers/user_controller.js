@@ -4,6 +4,8 @@ var express = require("express"),
   { LOGIN, CHECK } = require("../components/enums"),
   userService = require("../services/user_service");
 
+//TODO: I probably want to alphabetize this
+//TODO: Move functions to corresponding controllers
 router.post("/login-with-phone-number", loginWithPhoneNumber);
 router.post("/verify-pin-number", verifyPinNumber);
 router.post("/login-with-token", loginWithTokens);

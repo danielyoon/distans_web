@@ -125,6 +125,9 @@ async function createAccount(params, ip) {
     birthday: params.birthday,
   });
 
+  var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
+  user.coupons.push(coupon._id);
+
   await user.save();
 
   await db.RefreshToken.findOneAndDelete({ user: user.id });

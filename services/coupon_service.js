@@ -2,6 +2,7 @@ var db = require("../components/mongo.js");
 
 module.exports = {
   createAppCoupon,
+  getCoupons,
 };
 
 async function createAppCoupon(id, params) {
@@ -16,4 +17,13 @@ async function createAppCoupon(id, params) {
 
   await coupon.save();
   return { status: "SUCCESS", data: coupon };
+}
+
+async function getCoupons(id) {
+  const user = await db.User.findById(id);
+
+  return {
+    status: "SUCCESS",
+    data: user.coupons,
+  };
 }
