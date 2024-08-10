@@ -4,19 +4,21 @@ var express = require("express"),
   { LOGIN, CHECK } = require("../components/enums"),
   userService = require("../services/user_service");
 
-//TODO: I probably want to alphabetize this
 //TODO: Move functions to corresponding controllers
-router.post("/login-with-phone-number", loginWithPhoneNumber);
-router.post("/verify-pin-number", verifyPinNumber);
-router.post("/login-with-token", loginWithTokens);
-router.post("/create-account", createAccount);
-router.post("/update-user-permission", authorize(), updateUserPermission);
-router.post("/logout", authorize(), logout);
-router.post("/delete-account", authorize(), deleteAccount);
-router.post("/contact-us", authorize(), contactUs);
-router.post("/refresh-token", refreshToken);
 router.post("/check-in", checkIn);
 router.post("/check-out", authorize(), checkOut);
+router.post("/contact-us", authorize(), contactUs);
+router.post("/create-account", createAccount);
+router.post("/delete-account", authorize(), deleteAccount);
+router.get("/get-logs", authorize(), getLogs);
+router.post("/login-with-phone-number", loginWithPhoneNumber);
+router.post("/login-with-token", loginWithTokens);
+router.post("/logout", authorize(), logout);
+router.post("/refresh-token", refreshToken);
+router.post("/test-login", testLogin);
+router.post("/update-user-permission", authorize(), updateUserPermission);
+router.post("/verify-pin-number", verifyPinNumber);
+
 router.post("/get-qr-data", getQrData);
 router.post("/add-friend", authorize(), addFriend);
 router.get("/get-friends", authorize(), getFriends);
@@ -26,128 +28,7 @@ router.delete("/delete-eta", authorize(), deleteEta);
 router.post("/create-payment-intent", createPaymentIntent);
 router.post("/upgrade-account", authorize(), upgradeAccount);
 
-router.post("/test-login", testLogin);
-
 module.exports = router;
-
-function loginWithPhoneNumber(req, res, next) {
-  userService
-    .loginWithPhoneNumber(req.body)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch(next);
-}
-
-function verifyPinNumber(req, res, next) {
-  userService
-    .verifyPinNumber(req.body, req.ip)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.status(200).json(result.data);
-      } else if (result.status === LOGIN.NONEXISTENT) {
-        res.status(404).send("User does not exist yet");
-      } else {
-        res.sendStatus(401);
-      }
-    })
-    .catch(next);
-}
-
-function loginWithTokens(req, res, next) {
-  userService
-    .loginWithTokens(req.body, req.ip)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.status(200).json(result.data);
-      } else {
-        res.status(401).send("Expired token");
-      }
-    })
-    .catch(next);
-}
-
-function createAccount(req, res, next) {
-  userService
-    .createAccount(req.body, req.ip)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.status(200).json(result.data);
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch(next);
-}
-
-function updateUserPermission(req, res, next) {
-  userService
-    .updateUserPermission(req.auth.id, req.body)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch(next);
-}
-
-function logout(req, res, next) {
-  userService
-    .logout(req.auth.id)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.sendStatus(200);
-      } else {
-        res.status(404).send("Invalid token");
-      }
-    })
-    .catch(next);
-}
-
-function deleteAccount(req, res, next) {
-  userService
-    .deleteAccount(req.auth.id)
-    .then((result) => {
-      if (result.status === "SUCCESS") {
-        res.sendStatus(200);
-      } else {
-        res.status(404).send("Invalid token");
-      }
-    })
-    .catch(next);
-}
-
-function contactUs(req, res, next) {
-  userService
-    .contactUs(req.auth.id, req.body)
-    .then((result) => {
-      if (result.status === "SUCCESS") {
-        res.sendStatus(200);
-      } else {
-        res.status(404).send("Invalid token");
-      }
-    })
-    .catch(next);
-}
-
-function refreshToken(req, res, next) {
-  userService
-    .refreshToken(req.body, req.ip)
-    .then((result) => {
-      if (result.status === "SUCCESS") {
-        res.status(200).json(result.data);
-      } else {
-        res.status(404).send("Invalid token");
-      }
-    })
-    .catch(next);
-}
 
 function checkIn(req, res, next) {
   userService
@@ -170,6 +51,151 @@ function checkOut(req, res, next) {
         res.sendStatus(200);
       } else {
         res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function contactUs(req, res, next) {
+  userService
+    .contactUs(req.auth.id, req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function createAccount(req, res, next) {
+  userService
+    .createAccount(req.body, req.ip)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function deleteAccount(req, res, next) {
+  userService
+    .deleteAccount(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function getLogs(req, res, next) {
+  userService
+    .getLogs(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function loginWithPhoneNumber(req, res, next) {
+  userService
+    .loginWithPhoneNumber(req.body)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function loginWithTokens(req, res, next) {
+  userService
+    .loginWithTokens(req.body, req.ip)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.status(200).json(result.data);
+      } else {
+        res.status(401).send("Expired token");
+      }
+    })
+    .catch(next);
+}
+
+function logout(req, res, next) {
+  userService
+    .logout(req.auth.id)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.sendStatus(200);
+      } else {
+        res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function refreshToken(req, res, next) {
+  userService
+    .refreshToken(req.body, req.ip)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.status(404).send("Invalid token");
+      }
+    })
+    .catch(next);
+}
+
+function testLogin(req, res, next) {
+  userService
+    .testLogin(req.body)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(401);
+      }
+    })
+    .catch(next);
+}
+
+function updateUserPermission(req, res, next) {
+  userService
+    .updateUserPermission(req.auth.id, req.body)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function verifyPinNumber(req, res, next) {
+  userService
+    .verifyPinNumber(req.body, req.ip)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.status(200).json(result.data);
+      } else if (result.status === LOGIN.NONEXISTENT) {
+        res.status(404).send("User does not exist yet");
+      } else {
+        res.sendStatus(401);
       }
     })
     .catch(next);
@@ -274,19 +300,6 @@ function upgradeAccount(req, res, next) {
         res.sendStatus(200);
       } else {
         res.sendStatus(404);
-      }
-    })
-    .catch(next);
-}
-
-function testLogin(req, res, next) {
-  userService
-    .testLogin(req.body)
-    .then((result) => {
-      if (result.status === LOGIN.SUCCESS) {
-        res.status(200).json(result.data);
-      } else {
-        res.sendStatus(401);
       }
     })
     .catch(next);

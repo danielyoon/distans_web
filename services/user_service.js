@@ -11,17 +11,20 @@ var jwt = require("jsonwebtoken"),
 //TODO: All functions have to be re-made to use try-catch to discover possible errors
 //TODO: All non-auth functions should be moved to their own respective controllers ie time, friends, etc
 module.exports = {
-  loginWithPhoneNumber,
-  verifyPinNumber,
-  loginWithTokens,
-  createAccount,
-  updateUserPermission,
-  logout,
-  deleteAccount,
-  contactUs,
-  refreshToken,
   checkIn,
   checkOut,
+  contactUs,
+  createAccount,
+  deleteAccount,
+  getLogs,
+  loginWithPhoneNumber,
+  loginWithTokens,
+  logout,
+  refreshToken,
+  testLogin,
+  updateUserPermission,
+  verifyPinNumber,
+
   getQrData,
   addFriend,
   getFriends,
@@ -30,7 +33,6 @@ module.exports = {
   deleteEta,
   createPaymentIntent,
   upgradeAccount,
-  testLogin,
 };
 
 const logger = winston.createLogger({
@@ -51,161 +53,6 @@ if (process.env.NODE_ENV !== "production") {
       format: winston.format.simple(),
     })
   );
-}
-
-async function loginWithPhoneNumber({ phoneNumber }) {
-  const number = "+1" + phoneNumber;
-
-  const result = await client.verify
-    .services(SERVICE_ID)
-    .verifications.create({ to: number, channel: "sms" });
-
-  return { status: result.status === "pending" ? LOGIN.SUCCESS : LOGIN.WRONG };
-}
-
-async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
-  const number = "+1" + phoneNumber;
-
-  const result = await client.verify
-    .services(SERVICE_ID)
-    .verificationChecks.create({ to: number, code: pinNumber });
-
-  if (result.status === "approved") {
-    const user = await db.User.findOne({ phoneNumber: phoneNumber });
-
-    if (!user) {
-      return {
-        status: LOGIN.NONEXISTENT,
-        data: null,
-      };
-    }
-
-    await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-    const newRefreshToken = generateRefreshToken(user, ip);
-    await newRefreshToken.save();
-
-    const jwtToken = generateJwtToken(user);
-
-    return {
-      status: LOGIN.SUCCESS,
-      data: createUserData(user, newRefreshToken, jwtToken),
-    };
-  }
-}
-
-async function loginWithTokens(params, ip) {
-  const refreshToken = await getRefreshToken(params.token);
-
-  const user = refreshToken.user;
-
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-  const newRefreshToken = generateRefreshToken(user, ip);
-  await newRefreshToken.save();
-
-  const jwtToken = generateJwtToken(user);
-
-  return {
-    status: LOGIN.SUCCESS,
-    data: createUserData(user, newRefreshToken, jwtToken),
-  };
-}
-
-async function createAccount(params, ip) {
-  const isFirstUser =
-    (await db.User.countDocuments({ verified: { $ne: null } })) === 0;
-
-  let user = new db.User({
-    role: isFirstUser ? "Admin" : "User",
-    firstName: params.firstName,
-    lastName: params.lastName,
-    countryCode: "+1",
-    phoneNumber: params.phoneNumber,
-    birthday: params.birthday,
-  });
-
-  var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
-  user.coupons.push(coupon._id);
-
-  await user.save();
-
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-  const newRefreshToken = generateRefreshToken(user, ip);
-  await newRefreshToken.save();
-
-  const jwtToken = generateJwtToken(user);
-
-  return {
-    status: LOGIN.SUCCESS,
-    data: createUserData(user, newRefreshToken, jwtToken),
-  };
-}
-
-async function updateUserPermission(id, params) {
-  const user = await db.User.findById(id);
-
-  Object.assign(user, params);
-  await user.save();
-
-  return { status: "SUCCESS" };
-}
-
-async function logout(id) {
-  const user = await db.User.findOne({ _id: id });
-
-  await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-  return {
-    status: LOGIN.SUCCESS,
-  };
-}
-
-async function deleteAccount(id) {
-  await db.User.deleteOne({ _id: id });
-
-  return { status: "SUCCESS" };
-}
-
-async function contactUs(id, params) {
-  sendUserComments(id, params.email, params.description);
-
-  return { status: "SUCCESS" };
-}
-
-async function refreshToken(params, ip) {
-  try {
-    const refreshToken = await getRefreshToken(params.token);
-    const user = refreshToken.user;
-
-    await db.RefreshToken.findOneAndDelete({ user: user.id });
-
-    const newRefreshToken = generateRefreshToken(user, ip);
-    await newRefreshToken.save();
-
-    const jwtToken = generateJwtToken(user);
-
-    return {
-      status: LOGIN.SUCCESS,
-      data: {
-        refreshToken: newRefreshToken.token,
-        jwtToken,
-      },
-    };
-  } catch (error) {
-    logger.error(`Error in refreshToken: ${error.message}`, {
-      timestamp: new Date().toISOString(),
-      params,
-      ip,
-      stack: error.stack,
-    });
-
-    return {
-      status: 400,
-      message: "Error refreshing token",
-    };
-  }
 }
 
 async function checkIn(params) {
@@ -310,6 +157,178 @@ async function checkOut(id) {
   }
 }
 
+async function contactUs(id, params) {
+  sendUserComments(id, params.email, params.description);
+
+  return { status: "SUCCESS" };
+}
+
+async function createAccount(params, ip) {
+  const isFirstUser =
+    (await db.User.countDocuments({ verified: { $ne: null } })) === 0;
+
+  let user = new db.User({
+    role: isFirstUser ? "Admin" : "User",
+    firstName: params.firstName,
+    lastName: params.lastName,
+    countryCode: "+1",
+    phoneNumber: params.phoneNumber,
+    birthday: params.birthday,
+  });
+
+  //TODO: Add redis here to check whether this phone # has used this coupon before or not
+
+  var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
+  user.coupons.push(coupon._id);
+
+  await user.save();
+
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+  const newRefreshToken = generateRefreshToken(user, ip);
+  await newRefreshToken.save();
+
+  const jwtToken = generateJwtToken(user);
+
+  return {
+    status: LOGIN.SUCCESS,
+    data: createUserData(user, newRefreshToken, jwtToken),
+  };
+}
+
+async function deleteAccount(id) {
+  await db.User.deleteOne({ _id: id });
+
+  return { status: "SUCCESS" };
+}
+
+async function loginWithPhoneNumber({ phoneNumber }) {
+  const number = "+1" + phoneNumber;
+
+  const result = await client.verify
+    .services(SERVICE_ID)
+    .verifications.create({ to: number, channel: "sms" });
+
+  return { status: result.status === "pending" ? LOGIN.SUCCESS : LOGIN.WRONG };
+}
+
+async function getLogs(id) {}
+
+async function loginWithTokens(params, ip) {
+  const refreshToken = await getRefreshToken(params.token);
+
+  const user = refreshToken.user;
+
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+  const newRefreshToken = generateRefreshToken(user, ip);
+  await newRefreshToken.save();
+
+  const jwtToken = generateJwtToken(user);
+
+  return {
+    status: LOGIN.SUCCESS,
+    data: createUserData(user, newRefreshToken, jwtToken),
+  };
+}
+
+async function logout(id) {
+  const user = await db.User.findOne({ _id: id });
+
+  await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+  return {
+    status: LOGIN.SUCCESS,
+  };
+}
+
+async function refreshToken(params, ip) {
+  try {
+    const refreshToken = await getRefreshToken(params.token);
+    const user = refreshToken.user;
+
+    await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+    const newRefreshToken = generateRefreshToken(user, ip);
+    await newRefreshToken.save();
+
+    const jwtToken = generateJwtToken(user);
+
+    return {
+      status: LOGIN.SUCCESS,
+      data: {
+        refreshToken: newRefreshToken.token,
+        jwtToken,
+      },
+    };
+  } catch (error) {
+    logger.error(`Error in refreshToken: ${error.message}`, {
+      timestamp: new Date().toISOString(),
+      params,
+      ip,
+      stack: error.stack,
+    });
+
+    return {
+      status: 400,
+      message: "Error refreshing token",
+    };
+  }
+}
+
+async function testLogin(params) {
+  if (params.pin == 2024) {
+    return {
+      status: LOGIN.SUCCESS,
+    };
+  } else {
+    return {
+      status: LOGIN.WRONG,
+    };
+  }
+}
+
+async function updateUserPermission(id, params) {
+  const user = await db.User.findById(id);
+
+  Object.assign(user, params);
+  await user.save();
+
+  return { status: "SUCCESS" };
+}
+
+async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
+  const number = "+1" + phoneNumber;
+
+  const result = await client.verify
+    .services(SERVICE_ID)
+    .verificationChecks.create({ to: number, code: pinNumber });
+
+  if (result.status === "approved") {
+    const user = await db.User.findOne({ phoneNumber: phoneNumber });
+
+    if (!user) {
+      return {
+        status: LOGIN.NONEXISTENT,
+        data: null,
+      };
+    }
+
+    await db.RefreshToken.findOneAndDelete({ user: user.id });
+
+    const newRefreshToken = generateRefreshToken(user, ip);
+    await newRefreshToken.save();
+
+    const jwtToken = generateJwtToken(user);
+
+    return {
+      status: LOGIN.SUCCESS,
+      data: createUserData(user, newRefreshToken, jwtToken),
+    };
+  }
+}
+
+//TODO: Everything below this belongs in a different controller!
 async function getQrData(params) {
   const existingCode = await db.QrCode.findOne({ id: params.id });
 
@@ -536,18 +555,6 @@ async function upgradeAccount(id) {
   } catch (error) {
     console.error("Error in upgradeAccount function:", error);
     return { status: "ERROR", message: error.message };
-  }
-}
-
-async function testLogin(params) {
-  if (params.pin == 2024) {
-    return {
-      status: LOGIN.SUCCESS,
-    };
-  } else {
-    return {
-      status: LOGIN.WRONG,
-    };
   }
 }
 

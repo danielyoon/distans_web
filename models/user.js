@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+//TODO: I don't know if I want to keep both history AND notifications?
 const schema = new Schema(
   {
     role: { type: String, enum: ["User", "Premium", "Admin"], default: "User" },
