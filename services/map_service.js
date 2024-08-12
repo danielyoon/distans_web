@@ -21,8 +21,6 @@ async function createPlace(id, params) {
       },
     });
 
-    await place.save();
-
     if (params.isPrivate) {
       const user = await db.User.findById(id);
 
@@ -32,7 +30,7 @@ async function createPlace(id, params) {
       await user.save();
     }
 
-    console.log(place);
+    await place.save();
 
     return { status: "SUCCESS" };
   } catch (error) {
