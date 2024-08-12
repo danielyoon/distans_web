@@ -210,6 +210,11 @@ async function createAccount(params, ip) {
   var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
   user.coupons.push(coupon._id);
 
+  await addNotification(
+    user,
+    `Thank you for joining distans! Enjoy a free coupon for 40% off any of our partner stores!`
+  );
+
   await user.save();
 
   await db.RefreshToken.findOneAndDelete({ user: user.id });
