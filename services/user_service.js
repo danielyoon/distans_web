@@ -335,9 +335,7 @@ async function updateNotification(req, res) {
         seen: notification.seen,
       }));
     } else {
-      return res
-        .status(400)
-        .json({ status: "ERROR", message: "Invalid notifications array" });
+      return { status: "ERROR" };
     }
 
     await user.save();
