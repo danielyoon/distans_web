@@ -22,6 +22,7 @@ module.exports = {
   logout,
   refreshToken,
   testLogin,
+  updateNotification,
   updateUserPermission,
   verifyPinNumber,
 
@@ -320,6 +321,16 @@ async function testLogin(params) {
       status: LOGIN.WRONG,
     };
   }
+}
+
+async function updateNotification(params) {
+  const user = await bd.User.findById(params.id);
+
+  user.notifications = params.notifications;
+
+  await user.save();
+
+  return { status: "SUCCESS" };
 }
 
 async function updateUserPermission(id, params) {
