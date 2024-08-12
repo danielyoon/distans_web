@@ -70,5 +70,7 @@ async function getPlaceData(params) {
 async function getPrivatePlaces(id) {
   const user = await db.User.findById(id).populate("privatePlaces");
 
+  console.log(user.privatePlaces);
+
   return { status: "SUCCESS", data: user.privatePlaces };
 }
