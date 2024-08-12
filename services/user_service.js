@@ -57,58 +57,87 @@ if (process.env.NODE_ENV !== "production") {
 
 async function checkIn(params) {
   try {
+    // Retrieve refresh token and associated user
     const refreshToken = await getRefreshToken(params.token);
     const user = refreshToken.user;
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
+    // Return an error if no user is found
     if (!user) {
       return { status: "ERROR" };
     }
 
+    // Check if a nearby place is found and if it's approved
     if (!newPlace || newPlace.approved == false) {
-      // Handle case where no nearby approved place is found
+      // If no approved place is found, check the user out from their current location
       await checkOut(user._id);
       return { status: CHECK.OUT };
     }
 
     let checkedInTime = new Date();
     let isLocationAlwaysOn = user.isLocationAlwaysOn;
+    let isPrivate = newPlace.isPrivate;
 
-    if (
-      user.currentLocation &&
-      user.currentLocation.toString() === newPlace._id.toString()
-    ) {
+    // If the place is private and the user isn't the requester, exit
+    if (isPrivate && !newPlace.requestedBy.equals(user._id)) {
+      await checkOut(user._id);
+      return { status: CHECK.OUT };
+    }
+
+    // If the user is already checked into the same location, update their check-in time
+    if (user.currentLocation && user.currentLocation.equals(newPlace._id)) {
       // Find the user in the checkedInUsers array
-      const userIndex = newPlace.users.findIndex(
-        (checkedInUser) => checkedInUser.user.toString() === user._id.toString()
+      const userIndex = newPlace.users.findIndex((checkedInUser) =>
+        checkedInUser.user.equals(user._id)
       );
 
       if (userIndex !== -1) {
         // Update the check-in time for this user
         newPlace.users[userIndex].checkedInTime = new Date();
         newPlace.markModified("users");
-        await newPlace.save();
       }
     } else {
-      // Check out from the previous location if different
+      // If the user is checked into a different location, check them out first
       if (user.currentLocation) {
         await checkOut(user._id);
       }
 
-      // Check in to the new place
+      // Add the user to the new place's check-in list
       newPlace.users.push({
-        user: user._id.toString(),
+        user: user._id,
         checkedInTime,
         isLocationAlwaysOn,
       });
       await newPlace.save();
 
-      user.history.push({
-        location: newPlace.name,
-        time: checkedInTime,
-      });
+      // Update the user's check-in history
+      const existingHistory = user.history.find(
+        (entry) => entry.place === newPlace._id
+      );
+
+      if (existingHistory) {
+        // If the user has checked into this place before, increment the visit count
+        existingHistory.visitCount += 1;
+        existingHistory.time = checkedInTime;
+      } else {
+        // If this is the first visit, add a new entry to the history
+        user.history.push({
+          place: newPlace._id,
+          time: checkedInTime,
+          visitCount: 1,
+        });
+      }
+
+      // Update the user's current location and check-in time
       user.currentLocation = newPlace._id;
       user.time = checkedInTime;
+
+      // Add a notification for the check-in event
+      await addNotification(
+        user,
+        `Checked into: ${newPlace.name} at ${checkedInTime}`
+      );
+
       await user.save();
     }
 
@@ -130,13 +159,13 @@ async function checkOut(id) {
     // Find the user and check if they are checked in somewhere
     const user = await db.User.findById(id);
     if (!user || !user.currentLocation) {
-      return { status: CHECK.OUT }; // User is not checked in anywhere
+      return { status: CHECK.OUT };
     }
 
     // Update the Place/Marker document: remove the user from the checked-in users
     await db.Place.updateOne(
       { _id: user.currentLocation },
-      { $pull: { users: { user: id.toString() } } }
+      { $pull: { users: { user: id } } }
     );
 
     // Update the User document: reset currentLocation and recentCheckedIn
@@ -144,7 +173,7 @@ async function checkOut(id) {
       { _id: id },
       {
         $set: {
-          currentLocation: "",
+          currentLocation: null,
           recentCheckedIn: null,
         },
       }
@@ -558,6 +587,7 @@ async function upgradeAccount(id) {
   }
 }
 
+//TODO: ALPHABETIZE THESE
 // Helper functions
 function generateJwtToken(user) {
   return jwt.sign({ sub: user.id, id: user.id }, process.env.SECRET_OR_KEY, {
@@ -676,4 +706,16 @@ function parseTime(timeStr) {
   eventTime.setHours(hours, minutes, 0, 0);
 
   return eventTime;
+}
+
+async function addNotification(user, notification) {
+  if (user.notifications.length >= 200) {
+    user.notifications.shift();
+  }
+
+  user.notification.push({
+    index: user.notifications.length,
+    notification: notification,
+    seen: false,
+  });
 }

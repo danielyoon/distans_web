@@ -54,7 +54,7 @@ async function handleUserCheckouts() {
       { _id: { $in: usersToUpdate } },
       {
         $set: {
-          currentLocation: "",
+          currentLocation: null,
           recentCheckedIn: null,
         },
       }

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-//TODO: I don't know if I want to keep both history AND notifications?
 const schema = new Schema(
   {
     role: { type: String, enum: ["User", "Premium", "Admin"], default: "User" },
@@ -12,16 +11,23 @@ const schema = new Schema(
     phoneNumber: { type: Number, required: true },
     birthday: { type: String, required: true },
     isLocationAlwaysOn: { type: Boolean, default: false },
-    currentLocation: String,
-    time: { type: Date, default: () => new Date(0) },
+    currentLocation: { type: mongoose.Schema.Types.ObjectId, ref: "Place" },
+    time: { type: Date, default: null },
     email: String,
     passwordHash: String,
-    history: { type: Array, default: [] },
+    history: [
+      {
+        place: { type: mongoose.Schema.Types.ObjectId, ref: "Place" },
+        time: Date,
+        visitCount: Number,
+      },
+    ],
     friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     privatePlaces: [{ type: mongoose.Schema.Types.ObjectId, ref: "Place" }],
     eta: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
     coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
+    notifications: { type: Array, default: [] },
   },
   {
     timestamps: true,
