@@ -22,6 +22,8 @@ async function createPlace(id, params) {
     },
   });
 
+  console.log(place);
+
   await place.save();
 
   if (params.isPrivate) {
