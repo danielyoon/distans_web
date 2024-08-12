@@ -323,28 +323,14 @@ async function testLogin(params) {
   }
 }
 
-async function updateNotification(req, res) {
-  try {
-    const { id, notifications } = req.body;
-    const user = await db.User.findById(id);
+async function updateNotification(params) {
+  const user = await db.User.findById(params.id);
 
-    if (Array.isArray(notifications)) {
-      user.notifications = notifications.map((notification) => ({
-        index: notification.index,
-        notification: notification.notification,
-        seen: notification.seen,
-      }));
-    } else {
-      return { status: "ERROR" };
-    }
+  user.notifications = params.notifications;
 
-    await user.save();
+  await user.save();
 
-    return { status: "SUCCESS" };
-  } catch (error) {
-    console.error("Update notification error:", error);
-    return { status: "ERROR" };
-  }
+  return { status: "SUCCESS" };
 }
 
 async function updateUserPermission(id, params) {
