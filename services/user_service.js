@@ -22,7 +22,7 @@ module.exports = {
   logout,
   refreshToken,
   testLogin,
-  updateNotification,
+  updateLogs,
   updateUserPermission,
   verifyPinNumber,
 
@@ -134,10 +134,7 @@ async function checkIn(params) {
       user.time = checkedInTime;
 
       // Add a notification for the check-in event
-      await addNotification(
-        user,
-        `Checked into: ${newPlace.name} at ${checkedInTime}`
-      );
+      await addLog(user, `Checked into: ${newPlace.name} at ${checkedInTime}`);
 
       await user.save();
     }
@@ -211,7 +208,7 @@ async function createAccount(params, ip) {
   var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
   user.coupons.push(coupon._id);
 
-  await addNotification(
+  await addLog(
     user,
     `Thank you for joining distans! Enjoy a free coupon for 40% off any of our partner stores!`
   );
@@ -323,10 +320,10 @@ async function testLogin(params) {
   }
 }
 
-async function updateNotification(params) {
+async function updateLogs(params) {
   const user = await db.User.findById(params.id);
 
-  user.notifications = params.notifications;
+  user.logs = params.logs;
 
   await user.save();
 
@@ -724,14 +721,14 @@ function parseTime(timeStr) {
   return eventTime;
 }
 
-async function addNotification(user, notification) {
-  if (user.notifications.length >= 200) {
-    user.notifications.shift();
+async function addLog(user, log) {
+  if (user.logs.length >= 200) {
+    user.logs.shift();
   }
 
-  user.notification.push({
-    index: user.notifications.length,
-    notification: notification,
+  user.logs.push({
+    index: user.logs.length,
+    log: log,
     seen: false,
   });
 }

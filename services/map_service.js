@@ -8,6 +8,8 @@ module.exports = {
 };
 
 async function createPlace(id, params) {
+  console.log(params);
+
   const place = new db.Place({
     name: params.name,
     description: params.description,
@@ -30,6 +32,8 @@ async function createPlace(id, params) {
     user.privatePlaces.push(place._id);
     await user.save();
   }
+
+  console.log(place);
 
   return { status: "SUCCESS" };
 }

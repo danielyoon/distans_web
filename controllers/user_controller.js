@@ -16,7 +16,7 @@ router.post("/login-with-token", loginWithTokens);
 router.post("/logout", authorize(), logout);
 router.post("/refresh-token", refreshToken);
 router.post("/test-login", testLogin);
-router.post("/update-notification", updateNotification);
+router.post("/update-logs", updateLogs);
 router.post("/update-user-permission", authorize(), updateUserPermission);
 router.post("/verify-pin-number", verifyPinNumber);
 
@@ -174,9 +174,9 @@ function testLogin(req, res, next) {
     .catch(next);
 }
 
-function updateNotification(req, res, next) {
+function updateLogs(req, res, next) {
   userService
-    .updateNotification(req.body)
+    .updateLogs(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.sendStatus(200);

@@ -27,7 +27,7 @@ const schema = new Schema(
     eta: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
     coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }],
-    notifications: { type: Array, default: [] },
+    logs: { type: Array, default: [] },
   },
   {
     timestamps: true,
