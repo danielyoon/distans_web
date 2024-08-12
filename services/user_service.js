@@ -323,14 +323,30 @@ async function testLogin(params) {
   }
 }
 
-async function updateNotification(params) {
-  const user = await bd.User.findById(params.id);
+async function updateNotification(req, res) {
+  try {
+    const { id, notifications } = req.body;
+    const user = await db.User.findById(id);
 
-  user.notifications = params.notifications;
+    if (Array.isArray(notifications)) {
+      user.notifications = notifications.map((notification) => ({
+        index: notification.index,
+        notification: notification.notification,
+        seen: notification.seen,
+      }));
+    } else {
+      return res
+        .status(400)
+        .json({ status: "ERROR", message: "Invalid notifications array" });
+    }
 
-  await user.save();
+    await user.save();
 
-  return { status: "SUCCESS" };
+    return { status: "SUCCESS" };
+  } catch (error) {
+    console.error("Update notification error:", error);
+    return { status: "ERROR" };
+  }
 }
 
 async function updateUserPermission(id, params) {
