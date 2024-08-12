@@ -9,8 +9,6 @@ module.exports = {
 
 async function createPlace(id, params) {
   try {
-    console.log(params);
-
     const place = new db.Place({
       name: params.name,
       description: params.description,
@@ -23,16 +21,10 @@ async function createPlace(id, params) {
       },
     });
 
-    console.log(place);
-
     await place.save();
 
     if (params.isPrivate) {
       const user = await db.User.findById(id);
-
-      if (!user) {
-        throw new Error(`User with id ${id} not found`);
-      }
 
       place.approved = true;
 
