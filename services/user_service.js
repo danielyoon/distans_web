@@ -134,7 +134,10 @@ async function checkIn(params) {
       user.time = checkedInTime;
 
       // Add a notification for the check-in event
-      await addLog(user, `Checked into: ${newPlace.name} at ${checkedInTime}`);
+      await addLog(
+        user,
+        `Checked into: ${newPlace.name} at ${formatTimeEST(checkedInTime)}`
+      );
 
       await user.save();
     }
@@ -709,6 +712,22 @@ function createUserData(user, newRefreshToken, jwtToken) {
     refreshToken: newRefreshToken.token,
     jwtToken,
   };
+}
+
+function formatTimeEST(date) {
+  const utcDate = new Date(date.toLocaleString("en-US", { timeZone: "UTC" }));
+  const estDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000); // Subtract 5 hours for EST
+
+  let hours = estDate.getHours();
+  const minutes = estDate.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  const minutesStr = minutes < 10 ? "0" + minutes : minutes;
+
+  const formattedTime = `${hours}:${minutesStr} ${ampm} EST`;
+  return formattedTime;
 }
 
 function parseTime(timeStr) {
