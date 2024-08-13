@@ -180,7 +180,7 @@ async function checkOut(id) {
     return { status: CHECK.OUT };
   } catch (error) {
     console.error("Error in checkOut function:", error);
-    return { status: "ERROR", message: error.message };
+    return { status: "ERROR" };
   }
 }
 
@@ -244,7 +244,11 @@ async function loginWithPhoneNumber({ phoneNumber }) {
   return { status: result.status === "pending" ? LOGIN.SUCCESS : LOGIN.WRONG };
 }
 
-async function getLogs(id) {}
+async function getLogs(id) {
+  const user = await db.User.findById(id);
+
+  return { status: "SUCCESS", data: user.logs };
+}
 
 async function loginWithTokens(params, ip) {
   const refreshToken = await getRefreshToken(params.token);
@@ -320,8 +324,8 @@ async function testLogin(params) {
   }
 }
 
-async function updateLogs(params) {
-  const user = await db.User.findById(params.id);
+async function updateLogs(id, params) {
+  const user = await db.User.findById(id);
 
   user.logs = params.logs;
 
