@@ -206,15 +206,21 @@ async function createAccount(params, ip) {
     birthday: params.birthday,
   });
 
-  //TODO: Add redis here to check whether this phone # has used this coupon before or not
-
   var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
-  user.coupons.push(coupon._id);
 
-  await addLog(
-    user,
-    `Thank you for joining distans! Enjoy a free coupon for 40% off any of our partner stores!`
-  );
+  const redeemed = coupon.redeemed.includes(params.phoneNumber);
+
+  if (!redeemed) {
+    user.coupons.push(coupon._id);
+    await addLog(
+      user,
+      `Thank you for joining distans! ${
+        !redeemed
+          ? "Enjoy a free coupon for 40% off any of our partner stores!"
+          : ""
+      }`
+    );
+  }
 
   await user.save();
 

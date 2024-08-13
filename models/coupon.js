@@ -16,6 +16,7 @@ const schema = new Schema({
   expiry: Date,
   isAppCoupon: { type: Boolean, required: true },
   isUsed: { type: Boolean, default: false },
+  redeemed: { type: Array, default: [] },
 });
 
 module.exports = mongoose.model("Coupon", schema);
