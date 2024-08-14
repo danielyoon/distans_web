@@ -1,3 +1,5 @@
+const { time } = require("console");
+
 var jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
   winston = require("winston"),
@@ -134,10 +136,7 @@ async function checkIn(params) {
       user.time = checkedInTime;
 
       // Add a notification for the check-in event
-      await addLog(
-        user,
-        `Checked into: ${newPlace.name} at ${formatTimeEST(checkedInTime)}`
-      );
+      await addLog(user, "check", newPlace.name, checkedInTime);
 
       await user.save();
     }
@@ -212,14 +211,7 @@ async function createAccount(params, ip) {
 
   if (!redeemed) {
     user.coupons.push(coupon._id);
-    await addLog(
-      user,
-      `Thank you for joining distans! ${
-        !redeemed
-          ? "Enjoy a free coupon for 40% off any of our partner stores!"
-          : ""
-      }`
-    );
+    await addLog(user, "coupon", "distans", new Date());
   }
 
   await user.save();
@@ -720,22 +712,6 @@ function createUserData(user, newRefreshToken, jwtToken) {
   };
 }
 
-function formatTimeEST(date) {
-  const utcDate = new Date(date.toLocaleString("en-US", { timeZone: "UTC" }));
-  const estDate = new Date(utcDate.getTime() - 5 * 60 * 60 * 1000); // Subtract 5 hours for EST
-
-  let hours = estDate.getHours();
-  const minutes = estDate.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
-
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  const minutesStr = minutes < 10 ? "0" + minutes : minutes;
-
-  const formattedTime = `${hours}:${minutesStr} ${ampm}`;
-  return formattedTime;
-}
-
 function parseTime(timeStr) {
   if (!/^\d{4}$/.test(timeStr)) {
     throw new Error("Invalid time format. Expected HHMM.");
@@ -750,14 +726,16 @@ function parseTime(timeStr) {
   return eventTime;
 }
 
-async function addLog(user, log) {
+async function addLog(user, action, target, time) {
   if (user.logs.length >= 200) {
     user.logs.shift();
   }
 
   user.logs.push({
     index: user.logs.length,
-    log: log,
+    action: action,
+    target: target,
+    time: time,
     seen: false,
   });
 }
