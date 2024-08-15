@@ -1,6 +1,7 @@
 const mongoose = require("mongoose"),
   Schema = mongoose.Schema;
 
+//TODO: Add occupant for private places
 const schema = new Schema(
   {
     name: { type: String, required: true },

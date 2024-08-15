@@ -98,7 +98,23 @@ async function checkIn(params) {
         // Update the check-in time for this user
         newPlace.users[userIndex].checkedInTime = new Date();
         newPlace.markModified("users");
+
+        await newPlace.save();
       }
+
+      // Update the user's current location and check-in time
+      user.currentLocation = newPlace._id;
+      user.time = new Date();
+
+      await user.save();
+
+      return {
+        status: CHECK.IN,
+        data: {
+          placeId: newPlace._id,
+          checkedInTime: checkedInTime,
+        },
+      };
     } else {
       // If the user is checked into a different location, check them out first
       if (user.currentLocation) {
@@ -114,8 +130,8 @@ async function checkIn(params) {
       await newPlace.save();
 
       // Update the user's check-in history
-      const existingHistory = user.history.find(
-        (entry) => entry.place === newPlace._id
+      const existingHistory = user.history.find((entry) =>
+        entry.place.equals(newPlace._id)
       );
 
       if (existingHistory) {
