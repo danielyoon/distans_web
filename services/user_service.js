@@ -104,7 +104,6 @@ async function checkIn(params) {
 
       // Update the user's current location and check-in time
       user.currentLocation = newPlace._id;
-      user.time = new Date();
 
       await user.save();
 
@@ -112,7 +111,7 @@ async function checkIn(params) {
         status: CHECK.IN,
         data: {
           placeId: newPlace._id,
-          checkedInTime: checkedInTime,
+          checkedInTime: user.time,
         },
       };
     } else {
