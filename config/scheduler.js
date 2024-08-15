@@ -40,7 +40,14 @@ async function handleUserCheckouts() {
         Math.abs(currentTime - user.checkedInTime) / 1000 / 60
       );
 
-      let checkoutTime = user.isLocationAlwaysOn ? 360 : 240;
+      let checkoutTime = 240;
+      if (user.isLocationAlwaysOn) {
+        checkoutTime = 360;
+      }
+
+      if (user.longStay) {
+        checkoutTime = 480;
+      }
 
       if (minutesSinceCheckedIn > checkoutTime) {
         usersToUpdate.push(user.user);

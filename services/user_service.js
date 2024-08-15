@@ -96,7 +96,7 @@ async function checkIn(params) {
 
       if (userIndex !== -1) {
         // Update the check-in time for this user
-        newPlace.users[userIndex].checkedInTime = new Date();
+        newPlace.users[userIndex].longStay = true;
         newPlace.markModified("users");
 
         await newPlace.save();
@@ -126,6 +126,7 @@ async function checkIn(params) {
         user: user._id,
         checkedInTime,
         isLocationAlwaysOn,
+        longStay: false,
       });
       await newPlace.save();
 
