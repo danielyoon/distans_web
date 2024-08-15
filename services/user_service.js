@@ -184,13 +184,13 @@ async function checkOut(id) {
       { $pull: { users: { user: id } } }
     );
 
-    // Update the User document: reset currentLocation and recentCheckedIn
+    // Update the User document: reset currentLocation and time
     await db.User.updateOne(
       { _id: id },
       {
         $set: {
           currentLocation: null,
-          recentCheckedIn: null,
+          time: null,
         },
       }
     );
