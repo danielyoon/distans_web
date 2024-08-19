@@ -10,7 +10,6 @@ module.exports = {
 
 async function createPlace(id, params, file) {
   try {
-    console.log(file);
     let imageUrl = null;
 
     const place = new db.Place({
@@ -25,11 +24,15 @@ async function createPlace(id, params, file) {
       },
     });
 
+    await place.save();
+
     // Attempt to upload image to S3 if a file is provided
     if (file) {
       try {
-        imageUrl = await uploadImageToS3(file);
-        console.log(imageUrl);
+        imageUrl = await uploadImageToS3(
+          file,
+          `places/${place._id.toString()}`
+        );
         place.photo = imageUrl;
       } catch (uploadError) {
         console.error("Error uploading file to S3:", uploadError);

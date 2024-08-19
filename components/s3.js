@@ -10,10 +10,10 @@ AWS.config.update({
   region: process.env.AWS_REGION,
 });
 
-async function uploadImageToS3(file) {
+async function uploadImageToS3(file, name) {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `places/${Date.now()}_${file.originalname}`,
+    Key: name,
     Body: file.buffer,
     ContentType: file.mimetype,
     ACL: "public-read",
