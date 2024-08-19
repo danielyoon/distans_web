@@ -10,17 +10,8 @@ module.exports = {
 
 async function createPlace(id, params, file) {
   try {
+    console.log(file);
     let imageUrl = null;
-
-    // Attempt to upload image to S3 if a file is provided
-    if (file) {
-      try {
-        imageUrl = await uploadImageToS3(file);
-      } catch (uploadError) {
-        console.error("Error uploading file to S3:", uploadError);
-        return { status: "ERROR", message: "File upload failed" };
-      }
-    }
 
     const place = new db.Place({
       name: params.name,
@@ -32,8 +23,19 @@ async function createPlace(id, params, file) {
         type: "Point",
         coordinates: [params.longitude, params.latitude],
       },
-      photo: imageUrl,
     });
+
+    // Attempt to upload image to S3 if a file is provided
+    if (file) {
+      try {
+        imageUrl = await uploadImageToS3(file);
+        console.log(imageUrl);
+        place.photo = imageUrl;
+      } catch (uploadError) {
+        console.error("Error uploading file to S3:", uploadError);
+        return { status: "ERROR", message: "File upload failed" };
+      }
+    }
 
     if (params.isPrivate) {
       const user = await db.User.findById(id);
