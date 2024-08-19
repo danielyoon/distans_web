@@ -2,7 +2,7 @@ var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
   { ROLE } = require("../components/enums"),
-  { upload } = require("./s3.service"),
+  { upload } = require("../components/s3"),
   mapService = require("../services/map_service");
 
 router.post(
