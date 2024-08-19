@@ -1,4 +1,5 @@
-var db = require("../components/mongo.js");
+var db = require("../components/mongo.js"),
+  { uploadImageToS3 } = require("./s3.service");
 
 module.exports = {
   createPlace,
@@ -7,8 +8,20 @@ module.exports = {
   getPrivatePlaces,
 };
 
-async function createPlace(id, params) {
+async function createPlace(id, params, file) {
   try {
+    let imageUrl = null;
+
+    // Attempt to upload image to S3 if a file is provided
+    if (file) {
+      try {
+        imageUrl = await uploadImageToS3(file);
+      } catch (uploadError) {
+        console.error("Error uploading file to S3:", uploadError);
+        return { status: "ERROR", message: "File upload failed" };
+      }
+    }
+
     const place = new db.Place({
       name: params.name,
       description: params.description,
@@ -19,6 +32,7 @@ async function createPlace(id, params) {
         type: "Point",
         coordinates: [params.longitude, params.latitude],
       },
+      photo: imageUrl,
     });
 
     if (params.isPrivate) {

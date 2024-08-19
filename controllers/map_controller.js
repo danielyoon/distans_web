@@ -2,9 +2,15 @@ var express = require("express"),
   router = express.Router(),
   authorize = require("../config/authorize"),
   { ROLE } = require("../components/enums"),
+  { upload } = require("./s3.service"),
   mapService = require("../services/map_service");
 
-router.post("/create-place", authorize(ROLE.Admin), createPlace);
+router.post(
+  "/create-place",
+  authorize(ROLE.Admin),
+  upload.single("photo"),
+  createPlace
+);
 router.post("/get-nearby-places", getNearbyPlaces);
 router.post("/get-place-data", getPlaceData);
 router.get("/get-private-places", authorize(), getPrivatePlaces);
@@ -13,7 +19,7 @@ module.exports = router;
 
 function createPlace(req, res, next) {
   mapService
-    .createPlace(req.auth.id, req.body)
+    .createPlace(req.auth.id, req.body, req.file)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.sendStatus(200);

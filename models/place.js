@@ -26,6 +26,7 @@ const schema = new Schema(
     },
     users: { type: Array, default: [] },
     capacity: Number,
+    photo: String,
     eta: { type: Array, default: [] },
     schemaVersion: { type: Number, default: 1 },
   },
