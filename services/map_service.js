@@ -1,5 +1,5 @@
 var db = require("../components/mongo.js"),
-  { uploadImageToS3 } = require("./s3.service");
+  { uploadImageToS3 } = require("../components/s3.js");
 
 module.exports = {
   createPlace,
