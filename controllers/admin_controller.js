@@ -4,11 +4,25 @@ var express = require("express"),
   { LOGIN, ROLE, TOKEN } = require("../components/enums"),
   adminService = require("../services/admin_service");
 
+router.post("/assign-place", authorize(ROLE.Admin), assignPlace);
 router.post("/create-account", authorize(ROLE.Admin), createAccount);
 router.post("/login-with-email", loginWithEmail);
 router.get("/refresh-token", refreshToken);
 
 module.exports = router;
+
+function assignPlace(req, res, next) {
+  adminService
+    .assignPlace(req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
 
 function createAccount(req, res, next) {
   adminService

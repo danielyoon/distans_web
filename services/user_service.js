@@ -344,7 +344,11 @@ async function testLogin(params) {
 async function updateLogs(id, params) {
   const user = await db.User.findById(id);
 
-  user.logs = params.logs;
+  user.logs.forEach((log) => {
+    if (log.index <= params.index && log.action !== "assign") {
+      log.seen = true;
+    }
+  });
 
   await user.save();
 

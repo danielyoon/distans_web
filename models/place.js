@@ -25,6 +25,7 @@ const schema = new Schema(
       },
     },
     users: { type: Array, default: [] },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     capacity: Number,
     photo: String,
     eta: { type: Array, default: [] },
