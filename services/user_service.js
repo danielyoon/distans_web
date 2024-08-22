@@ -344,20 +344,20 @@ async function testLogin(params) {
 async function updateLogs(id, params) {
   const user = await db.User.findById(id);
 
-  console.log(params.index);
+  let logsUpdated = false;
 
   user.logs.forEach((log) => {
     if (log.index <= params.index && log.action !== "assign") {
-      console.log(log);
       log.seen = true;
+      logsUpdated = true;
     }
   });
 
-  await user.save();
+  if (logsUpdated) {
+    user.markModified("logs");
+  }
 
-  user.logs.forEach((log) => {
-    console.log(log);
-  });
+  await user.save();
 
   return { status: "SUCCESS" };
 }
