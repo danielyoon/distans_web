@@ -6,6 +6,7 @@ var express = require("express"),
 
 router.post("/assign-place", authorize(ROLE.Admin), assignPlace);
 router.post("/create-account", authorize(ROLE.Admin), createAccount);
+router.post("/get-user-by-phone", authorize(ROLE.Admin), getUserByPhone);
 router.post("/login-with-email", loginWithEmail);
 router.get("/refresh-token", refreshToken);
 
@@ -30,6 +31,19 @@ function createAccount(req, res, next) {
     .then((result) => {
       if (result.status === LOGIN.SUCCESS) {
         res.sendStatus(200);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getUserByPhone(req, res, next) {
+  adminService
+    .getUserByPhone(req.body)
+    .then((result) => {
+      if (result.status === LOGIN.SUCCESS) {
+        res.status(200).json(result.data);
       } else {
         res.sendStatus(404);
       }

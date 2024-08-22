@@ -346,11 +346,16 @@ async function updateLogs(id, params) {
 
   user.logs.forEach((log) => {
     if (log.index <= params.index && log.action !== "assign") {
+      console.log(log);
       log.seen = true;
     }
   });
 
   await user.save();
+
+  user.logs.forEach((log) => {
+    console.log(log);
+  });
 
   return { status: "SUCCESS" };
 }

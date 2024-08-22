@@ -4,7 +4,13 @@ var jwt = require("jsonwebtoken"),
   { LOGIN, ROLE, TOKEN } = require("../components/enums"),
   db = require("../components/mongo.js");
 
-module.exports = { assignPlace, createAccount, loginWithEmail, refreshToken };
+module.exports = {
+  assignPlace,
+  createAccount,
+  getUserByPhone,
+  loginWithEmail,
+  refreshToken,
+};
 
 async function assignPlace(params) {
   const user = await db.User.findById(params.user);
@@ -30,6 +36,16 @@ async function createAccount(params) {
   await user.save();
 
   return { status: LOGIN.SUCCESS };
+}
+
+//TODO: In the future, needs country code
+async function getUserByPhone(params) {
+  const user = db.User.findOne({ phoneNumber: params.phoneNumber });
+
+  return {
+    status: "SUCCESS",
+    data: user,
+  };
 }
 
 async function loginWithEmail(params, ip) {
