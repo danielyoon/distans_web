@@ -344,6 +344,8 @@ async function testLogin(params) {
 async function updateLogs(id, params) {
   const user = await db.User.findById(id);
 
+  console.log(params.index);
+
   user.logs.forEach((log) => {
     if (log.index <= params.index && log.action !== "assign") {
       console.log(log);
