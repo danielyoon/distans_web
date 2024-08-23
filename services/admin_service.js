@@ -44,7 +44,12 @@ async function getUserByPhone(params) {
 
   return {
     status: "SUCCESS",
-    data: user,
+    data: {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      photo: user.photo,
+    },
   };
 }
 
