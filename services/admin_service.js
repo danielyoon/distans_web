@@ -40,6 +40,7 @@ async function createAccount(params) {
 
 //TODO: In the future, needs country code
 async function getUserByPhone(params) {
+  console.log(params.phoneNumber);
   const user = db.User.findOne({ phoneNumber: params.phoneNumber });
 
   return {
