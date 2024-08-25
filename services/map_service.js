@@ -40,7 +40,7 @@ async function createPlace(id, params, file) {
       }
     }
 
-    if (params.isPrivate) {
+    if (params.isPrivate === true) {
       const user = await db.User.findById(id);
 
       place.approved = true;
