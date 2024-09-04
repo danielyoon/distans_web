@@ -266,10 +266,10 @@ async function getLogs(id) {
 }
 
 async function getQrData(params) {
-  const existingCode = await db.QrCode.findOne({ id: params.id });
+  const existingCode = await db.QrCode.findOne({ userId: params.id });
 
   if (existingCode) {
-    await db.QrCode.deleteOne({ id: params.id });
+    await db.QrCode.deleteOne({ userId: params.id });
   }
 
   const uuid = crypto.randomUUID();
