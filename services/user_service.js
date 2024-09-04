@@ -6,7 +6,6 @@ var jwt = require("jsonwebtoken"),
   client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN),
   stripe = require("stripe")(process.env.STRIPE_KEY),
   SERVICE_ID = process.env.SERVICE_ID,
-  QRCode = require("qrcode"),
   crypto = require("crypto"),
   db = require("../components/mongo.js");
 
@@ -275,7 +274,7 @@ async function getQrData(params) {
     await db.QrCode.deleteOne({ id: params.id });
   }
 
-  const uuid = crypto.randomUUID().split("-")[0];
+  const uuid = crypto.randomUUID();
 
   const qr = new db.QrCode({
     id: uuid,
@@ -285,9 +284,7 @@ async function getQrData(params) {
 
   await qr.save();
 
-  const qrString = await QRCode.toDataURL(uuid);
-
-  return { status: "SUCCESS", data: qrString };
+  return { status: "SUCCESS", data: uuid };
 }
 
 async function loginWithTokens(params, ip) {
