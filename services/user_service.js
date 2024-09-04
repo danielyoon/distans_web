@@ -1,5 +1,3 @@
-const { time } = require("console");
-
 var jwt = require("jsonwebtoken"),
   crypto = require("crypto"),
   winston = require("winston"),
@@ -8,10 +6,11 @@ var jwt = require("jsonwebtoken"),
   client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN),
   stripe = require("stripe")(process.env.STRIPE_KEY),
   SERVICE_ID = process.env.SERVICE_ID,
+  QRCode = require("qrcode"),
+  crypto = require("crypto"),
   db = require("../components/mongo.js");
 
 //TODO: All functions have to be re-made to use try-catch to discover possible errors
-//TODO: All non-auth functions should be moved to their own respective controllers ie time, friends, etc
 module.exports = {
   checkIn,
   checkOut,
@@ -19,6 +18,7 @@ module.exports = {
   createAccount,
   deleteAccount,
   getLogs,
+  getQrData,
   loginWithPhoneNumber,
   loginWithTokens,
   logout,
@@ -28,7 +28,6 @@ module.exports = {
   updateUserPermission,
   verifyPinNumber,
 
-  getQrData,
   addFriend,
   getFriends,
   postEta,
@@ -267,6 +266,28 @@ async function getLogs(id) {
   return { status: "SUCCESS", data: user.logs };
 }
 
+async function getQrData(params) {
+  const existingCode = await db.QrCode.findOne({ id: params.id });
+
+  if (existingCode) {
+    await db.QrCode.deleteOne({ id: params.id });
+  }
+
+  const uuid = crypto.randomUUID();
+
+  const qr = new db.QrCode({
+    id: uuid,
+    userId: params.id,
+    expires: new Date(Date.now() + 60 * 60 * 1000),
+  });
+
+  await qr.save();
+
+  const qrString = await QRCode.toDataURL(uuid);
+
+  return { status: "SUCCESS", data: qrString };
+}
+
 async function loginWithTokens(params, ip) {
   const refreshToken = await getRefreshToken(params.token);
 
@@ -403,23 +424,6 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 }
 
 //TODO: Everything below this belongs in a different controller!
-async function getQrData(params) {
-  const existingCode = await db.QrCode.findOne({ id: params.id });
-
-  if (existingCode) {
-    await db.QrCode.deleteOne({ id: params.id });
-  }
-
-  const qr = new db.QrCode({
-    id: params.id,
-    expires: new Date(Date.now() + 60 * 60 * 1000),
-  });
-
-  await qr.save();
-
-  const encryptedData = encrypt(qr._id.toString());
-  return { status: "SUCCESS", data: encryptedData };
-}
 
 async function addFriend(id, encryptedParams) {
   try {

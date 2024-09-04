@@ -11,6 +11,7 @@ router.post("/contact-us", authorize(), contactUs);
 router.post("/create-account", createAccount);
 router.post("/delete-account", authorize(), deleteAccount);
 router.get("/get-logs", authorize(), getLogs);
+router.post("/get-qr-data", getQrData);
 router.post("/login-with-phone-number", loginWithPhoneNumber);
 router.post("/login-with-token", loginWithTokens);
 router.post("/logout", authorize(), logout);
@@ -20,7 +21,6 @@ router.post("/update-logs", authorize(), updateLogs);
 router.post("/update-user-permission", authorize(), updateUserPermission);
 router.post("/verify-pin-number", verifyPinNumber);
 
-router.post("/get-qr-data", getQrData);
 router.post("/add-friend", authorize(), addFriend);
 router.get("/get-friends", authorize(), getFriends);
 router.post("/post-eta", authorize(), postEta);
@@ -99,6 +99,19 @@ function deleteAccount(req, res, next) {
 function getLogs(req, res, next) {
   userService
     .getLogs(req.auth.id)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getQrData(req, res, next) {
+  userService
+    .getQrData(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);
@@ -210,19 +223,6 @@ function verifyPinNumber(req, res, next) {
         res.status(404).send("User does not exist yet");
       } else {
         res.sendStatus(401);
-      }
-    })
-    .catch(next);
-}
-
-function getQrData(req, res, next) {
-  userService
-    .getQrData(req.body)
-    .then((result) => {
-      if (result.status === "SUCCESS") {
-        res.status(200).json(result.data);
-      } else {
-        res.sendStatus(404);
       }
     })
     .catch(next);
