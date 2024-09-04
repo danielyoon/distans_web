@@ -273,7 +273,7 @@ async function getQrData(params) {
     await db.QrCode.deleteOne({ id: params.id });
   }
 
-  const uuid = crypto.randomUUID();
+  const uuid = crypto.randomUUID().split("-")[0];
 
   const qr = new db.QrCode({
     id: uuid,
