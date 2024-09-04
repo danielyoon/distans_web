@@ -266,8 +266,6 @@ async function getLogs(id) {
 }
 
 async function getQrData(params) {
-  console.log(params.id);
-
   const existingCode = await db.QrCode.findOne({ id: params.id });
 
   if (existingCode) {

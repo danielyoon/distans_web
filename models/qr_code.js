@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
   id: String,
+  userId: String,
   expires: Date,
 });
 
