@@ -219,14 +219,14 @@ async function createAccount(params, ip) {
     birthday: params.birthday,
   });
 
-  var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
+  // var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
 
-  const redeemed = coupon.redeemed.includes(params.phoneNumber);
+  // const redeemed = coupon.redeemed.includes(params.phoneNumber);
 
-  if (!redeemed) {
-    user.coupons.push(coupon._id);
-    await addLog(user, "coupon", "distans", new Date());
-  }
+  // if (!redeemed) {
+  //   user.coupons.push(coupon._id);
+  //   await addLog(user, "coupon", "distans", new Date());
+  // }
 
   await user.save();
 
