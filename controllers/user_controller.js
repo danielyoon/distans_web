@@ -11,7 +11,7 @@ router.post("/contact-us", authorize(), contactUs);
 router.post("/create-account", createAccount);
 router.post("/delete-account", authorize(), deleteAccount);
 router.get("/get-logs", authorize(), getLogs);
-router.post("/get-qr-data", getQrData);
+router.post("/create-user-qr", createUserQr);
 router.post("/login-with-phone-number", loginWithPhoneNumber);
 router.post("/login-with-token", loginWithTokens);
 router.post("/logout", authorize(), logout);
@@ -109,7 +109,7 @@ function getLogs(req, res, next) {
     .catch(next);
 }
 
-function getQrData(req, res, next) {
+function createUserQr(req, res, next) {
   userService
     .getQrData(req.body)
     .then((result) => {
@@ -228,6 +228,7 @@ function verifyPinNumber(req, res, next) {
     .catch(next);
 }
 
+//TODO: Everything below this belongs in a different controller!
 function addFriend(req, res, next) {
   userService
     .addFriend(req.auth.id, req.body)

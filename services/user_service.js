@@ -17,7 +17,7 @@ module.exports = {
   createAccount,
   deleteAccount,
   getLogs,
-  getQrData,
+  getQrData: createUserQr,
   loginWithPhoneNumber,
   loginWithTokens,
   logout,
@@ -219,15 +219,6 @@ async function createAccount(params, ip) {
     birthday: params.birthday,
   });
 
-  // var coupon = await db.Coupon.findOne({ name: "Distans-sign-up-coupon" });
-
-  // const redeemed = coupon.redeemed.includes(params.phoneNumber);
-
-  // if (!redeemed) {
-  //   user.coupons.push(coupon._id);
-  //   await addLog(user, "coupon", "distans", new Date());
-  // }
-
   await user.save();
 
   await db.RefreshToken.findOneAndDelete({ user: user.id });
@@ -265,7 +256,7 @@ async function getLogs(id) {
   return { status: "SUCCESS", data: user.logs };
 }
 
-async function getQrData(params) {
+async function createUserQr(params) {
   const existingCode = await db.QrCode.findOne({ userId: params.id });
 
   if (existingCode) {
@@ -421,56 +412,9 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 }
 
 //TODO: Everything below this belongs in a different controller!
-
 async function addFriend(id, encryptedParams) {
   try {
-    const decryptedData = decrypt(encryptedParams.friendId);
-    const qr = await db.QrCode.findById(decryptedData);
-
-    if (!qr) {
-      throw new Error("Qr Code doesn't exist!");
-    }
-
-    if (qr.isExpired) {
-      throw new Error("QR Code has expired.");
-    }
-
-    const user = await db.User.findById(id);
-    const friend = await db.User.findById(qr.id);
-
-    const friendExists = user.friends.some((f) => f.equals(friend._id));
-    if (friendExists) {
-      return {
-        status: "ERROR",
-        message: "Friend already exists",
-      };
-    }
-
-    user.friends.push(friend._id);
-    await user.save();
-
-    friend.friends.push(user._id);
-    await friend.save();
-
-    const friendsData = {
-      id: friend._id,
-      firstName: friend.firstName,
-      lastName: friend.lastName,
-      photo: friend.photo,
-      currentLocation: friend.currentLocation,
-      time: friend.time,
-    };
-
-    return {
-      status: "SUCCESS",
-      data: friendsData,
-    };
-  } catch (error) {
-    return {
-      status: "ERROR",
-      message: error.message,
-    };
-  }
+  } catch (e) {}
 }
 
 async function getFriends(id) {
@@ -639,44 +583,6 @@ function generateJwtToken(user) {
   return jwt.sign({ sub: user.id, id: user.id }, process.env.SECRET_OR_KEY, {
     expiresIn: "1h",
   });
-}
-
-function encrypt(text) {
-  const secretKey = process.env.ENCRYPT_KEY;
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(
-    "aes-256-cbc",
-    Buffer.from(secretKey),
-    iv
-  );
-  let encrypted = cipher.update(text, "utf8", "base64");
-  encrypted += cipher.final("base64");
-  return Buffer.from(iv.toString("base64") + ":" + encrypted).toString(
-    "base64"
-  );
-}
-
-function decrypt(text) {
-  const secretKey = process.env.ENCRYPT_KEY;
-  const buffer = Buffer.from(text, "base64");
-  const combined = buffer.toString();
-
-  const splitIndex = combined.indexOf(":");
-  const ivBase64 = combined.substring(0, splitIndex);
-  const encryptedTextBase64 = combined.substring(splitIndex + 1);
-
-  const iv = Buffer.from(ivBase64, "base64");
-  const encryptedText = Buffer.from(encryptedTextBase64, "base64");
-
-  const decipher = crypto.createDecipheriv(
-    "aes-256-cbc",
-    Buffer.from(secretKey),
-    iv
-  );
-  let decrypted = decipher.update(encryptedText, "base64", "utf8");
-  decrypted += decipher.final("utf8");
-
-  return decrypted;
 }
 
 /// Token expires after 2 days
