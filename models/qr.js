@@ -11,4 +11,4 @@ schema.virtual("isExpired").get(function () {
   return Date.now() >= this.expires;
 });
 
-module.exports = mongoose.model("QrCode", schema);
+module.exports = mongoose.model("Qr", schema);

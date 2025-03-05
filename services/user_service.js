@@ -17,7 +17,7 @@ module.exports = {
   createAccount,
   deleteAccount,
   getLogs,
-  getQrData: createUserQr,
+  createUserQr,
   loginWithPhoneNumber,
   loginWithTokens,
   logout,
@@ -257,15 +257,15 @@ async function getLogs(id) {
 }
 
 async function createUserQr(params) {
-  const existingCode = await db.QrCode.findOne({ userId: params.id });
+  const existingCode = await db.Qr.findOne({ userId: params.id });
 
   if (existingCode) {
-    await db.QrCode.deleteOne({ userId: params.id });
+    await db.Qr.deleteOne({ userId: params.id });
   }
 
   const uuid = crypto.randomUUID();
 
-  const qr = new db.QrCode({
+  const qr = new db.Qr({
     id: uuid,
     userId: params.id,
     expires: new Date(Date.now() + 60 * 60 * 1000),
@@ -412,9 +412,40 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 }
 
 //TODO: Everything below this belongs in a different controller!
-async function addFriend(id, encryptedParams) {
+async function addFriend(id, params) {
   try {
-  } catch (e) {}
+    const qr = await db.Qr.findById(params.qr);
+
+    if (!qr) {
+      throw new Error("Qr Code doesn't exist!");
+    }
+
+    if (qr.isExpired) {
+      throw new Error("QR Code has expired.");
+    }
+
+    const user = await db.User.findById(id);
+    const friend = await db.User.findById(qr.userId);
+
+    user.friends.push(friend._id);
+    await user.save();
+
+    friend.friends.push(user._id);
+    await friend.save();
+
+    return {
+      status: "SUCCESS",
+      data: {
+        id: qr.userId,
+        firstName: friend.firstName,
+        lastName: friend.lastName,
+        currentLocation: friend.currentLocation,
+        checkedInTime: friend.time,
+      },
+    };
+  } catch (error) {
+    console.error("Error in add friend function:", error);
+  }
 }
 
 async function getFriends(id) {

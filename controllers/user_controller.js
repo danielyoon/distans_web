@@ -111,7 +111,7 @@ function getLogs(req, res, next) {
 
 function createUserQr(req, res, next) {
   userService
-    .getQrData(req.body)
+    .createUserQr(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);

@@ -8,6 +8,6 @@ module.exports = {
   User: require("../models/user"),
   Place: require("../models/place"),
   RefreshToken: require("../models/refresh_token"),
-  QrCode: require("../models/qr_code"),
+  Qr: require("../models/qr"),
   Coupon: require("../models/coupon"),
 };
