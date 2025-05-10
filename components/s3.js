@@ -1,13 +1,15 @@
-const multer = require("multer"),
-  storage = multer.memoryStorage(),
-  upload = multer({ storage: storage }),
-  AWS = require("aws-sdk"),
-  s3 = new AWS.S3();
+const multer = require("multer");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const s3 = new S3Client({
   region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
 async function uploadImageToS3(file, name) {
@@ -19,8 +21,12 @@ async function uploadImageToS3(file, name) {
     ACL: "public-read",
   };
 
-  const uploadResult = await s3.upload(params).promise();
-  return uploadResult.Location;
+  const command = new PutObjectCommand(params);
+  await s3.send(command);
+
+  // Manually construct the file URL, since PutObjectCommand doesn't return `Location` like v2.
+  const location = `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`;
+  return location;
 }
 
 module.exports = {
