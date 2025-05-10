@@ -150,7 +150,7 @@ async function checkIn(params) {
       user.time = checkedInTime;
 
       // Add a notification for the check-in event
-      await addLog(user, "check", newPlace.name, checkedInTime);
+      // await addLog(user, "check", newPlace.name, checkedInTime);
 
       await user.save();
     }
@@ -413,6 +413,7 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 
 //TODO: Everything below this belongs in a different controller!
 async function addFriend(id, params) {
+  console.log(params);
   try {
     const qr = await db.Qr.findById(params.qr);
 
