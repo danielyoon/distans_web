@@ -415,7 +415,7 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 async function addFriend(id, params) {
   console.log(params);
   try {
-    const qr = await db.Qr.findById(params.qr);
+    const qr = await db.Qr.findById(params.friendId);
 
     if (!qr) {
       throw new Error("Qr Code doesn't exist!");
