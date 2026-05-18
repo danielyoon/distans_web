@@ -645,33 +645,35 @@ async function findNearbyPlace(longitude, latitude) {
       $geoNear: {
         near: {
           type: "Point",
-          coordinates: [longitude, latitude],
+          coordinates: [parseFloat(longitude), parseFloat(latitude)],
         },
         distanceField: "distance",
-        maxDistance: 75,
         spherical: true,
         query: {
           approved: true,
           isPrivate: { $ne: true },
         },
+        maxDistance: 75,
       },
     },
     { $limit: 2 },
   ]);
 
-  if (results.length === 0) return null;
+  if (!results.length) return null;
 
   const closest = results[0];
   const second = results[1];
 
-  // ✅ STRICT ACCEPTANCE (your “36m idea”, slightly padded)
-  if (closest.distance > 40) {
+  const CLOSE_THRESHOLD = 40;
+  const AMBIGUITY_GAP = 10;
+
+  // too far from any venue
+  if (closest.distance > CLOSE_THRESHOLD) {
     return null;
   }
 
-  // 🔥 DOMINANCE CHECK (prevents wrong venue selection)
-  if (second && second.distance - closest.distance < 10) {
-    // Too close to call → don't check in
+  // ambiguous between two venues
+  if (second && second.distance - closest.distance < AMBIGUITY_GAP) {
     return null;
   }
 
