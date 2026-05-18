@@ -9,9 +9,10 @@ router.post(
   "/create-place",
   authorize(ROLE.Admin),
   upload.single("photo"),
-  createPlace
+  createPlace,
 );
 router.post("/get-nearby-places", getNearbyPlaces);
+router.post("/get-nearby-pois", getNearbyPOIs);
 router.post("/get-place-data", getPlaceData);
 router.get("/get-private-places", authorize(), getPrivatePlaces);
 
@@ -33,6 +34,19 @@ function createPlace(req, res, next) {
 function getNearbyPlaces(req, res, next) {
   mapService
     .getNearbyPlaces(req.body)
+    .then((result) => {
+      if (result.status === "SUCCESS") {
+        res.status(200).json(result.data);
+      } else {
+        res.sendStatus(404);
+      }
+    })
+    .catch(next);
+}
+
+function getNearbyPOIs(req, res, next) {
+  mapService
+    .getNearbyPOIs(req.body)
     .then((result) => {
       if (result.status === "SUCCESS") {
         res.status(200).json(result.data);

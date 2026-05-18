@@ -40,7 +40,7 @@ const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json()
+    winston.format.json(),
   ),
   transports: [
     new winston.transports.File({ filename: "error.log", level: "error" }),
@@ -52,7 +52,7 @@ if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
       format: winston.format.simple(),
-    })
+    }),
   );
 }
 
@@ -89,7 +89,7 @@ async function checkIn(params) {
     if (user.currentLocation && user.currentLocation.equals(newPlace._id)) {
       // Find the user in the checkedInUsers array
       const userIndex = newPlace.users.findIndex((checkedInUser) =>
-        checkedInUser.user.equals(user._id)
+        checkedInUser.user.equals(user._id),
       );
 
       if (userIndex !== -1) {
@@ -129,7 +129,7 @@ async function checkIn(params) {
 
       // Update the user's check-in history
       const existingHistory = user.history.find((entry) =>
-        entry.place.equals(newPlace._id)
+        entry.place.equals(newPlace._id),
       );
 
       if (existingHistory) {
@@ -179,7 +179,7 @@ async function checkOut(id) {
     // Update the Place/Marker document: remove the user from the checked-in users
     await db.Place.updateOne(
       { _id: user.currentLocation },
-      { $pull: { users: { user: id } } }
+      { $pull: { users: { user: id } } },
     );
 
     // Update the User document: reset currentLocation and time
@@ -190,7 +190,7 @@ async function checkOut(id) {
           currentLocation: null,
           time: null,
         },
-      }
+      },
     );
 
     return { status: CHECK.OUT };
@@ -413,7 +413,6 @@ async function verifyPinNumber({ phoneNumber, pinNumber }, ip) {
 
 //TODO: Everything below this belongs in a different controller!
 async function addFriend(id, params) {
-  console.log(params);
   try {
     const qr = await db.Qr.findOne({ id: params.friendId });
 
@@ -457,7 +456,7 @@ async function getFriends(id) {
     existingFriends.map(async (friend) => {
       const exists = await db.User.findById(friend._id);
       return exists ? friend : null;
-    })
+    }),
   );
 
   existingFriends = existingFriends.filter((friend) => friend !== null);
@@ -483,7 +482,7 @@ async function getFriends(id) {
         currentLocation: currentLocation,
         time: friend.time,
       };
-    })
+    }),
   );
 
   return { status: "SUCCESS", data: friendsData };
@@ -503,12 +502,12 @@ async function postEta(id, params) {
   // Check if the user already has an ETA that overlaps with the new one
   const userHasOverlappingEta = user.eta.some(
     (existingEta) =>
-      new Date(existingEta.time).getTime() === eventTime.getTime()
+      new Date(existingEta.time).getTime() === eventTime.getTime(),
   );
 
   // Check if the user is already supposed to be at the place
   const userAlreadyAtPlace = place.eta.some(
-    (existingEta) => existingEta.user.toString() === id.toString()
+    (existingEta) => existingEta.user.toString() === id.toString(),
   );
 
   if (userHasOverlappingEta) {
@@ -630,7 +629,7 @@ function generateRefreshToken(user, ipAddress) {
 
 async function getRefreshToken(token) {
   const refreshToken = await db.RefreshToken.findOne({ token }).populate(
-    "user"
+    "user",
   );
   if (!refreshToken || refreshToken.isExpired) throw "Invalid token";
   return refreshToken;
@@ -641,14 +640,42 @@ function randomTokenString(number) {
 }
 
 async function findNearbyPlace(longitude, latitude) {
-  const geoQuery = {
-    location: {
-      $geoWithin: {
-        $centerSphere: [[longitude, latitude], 5.73e-6],
+  const results = await db.Place.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        distanceField: "distance",
+        maxDistance: 75,
+        spherical: true,
+        query: {
+          approved: true,
+          isPrivate: { $ne: true },
+        },
       },
     },
-  };
-  return await db.Place.findOne(geoQuery);
+    { $limit: 2 },
+  ]);
+
+  if (results.length === 0) return null;
+
+  const closest = results[0];
+  const second = results[1];
+
+  // ✅ STRICT ACCEPTANCE (your “36m idea”, slightly padded)
+  if (closest.distance > 40) {
+    return null;
+  }
+
+  // 🔥 DOMINANCE CHECK (prevents wrong venue selection)
+  if (second && second.distance - closest.distance < 10) {
+    // Too close to call → don't check in
+    return null;
+  }
+
+  return closest;
 }
 
 //TODO: Make a more readable HTML structure

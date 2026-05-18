@@ -4,6 +4,7 @@ var db = require("../components/mongo.js"),
 module.exports = {
   createPlace,
   getNearbyPlaces,
+  getNearbyPOIs,
   getPlaceData,
   getPrivatePlaces,
 };
@@ -31,7 +32,7 @@ async function createPlace(id, params, file) {
       try {
         imageUrl = await uploadImageToS3(
           file,
-          `places/${place._id.toString()}`
+          `places/${place._id.toString()}`,
         );
         place.photo = imageUrl;
       } catch (uploadError) {
@@ -77,6 +78,37 @@ async function getNearbyPlaces(params) {
   return {
     status: "SUCCESS",
     data: nearbyPlaces,
+  };
+}
+
+async function getNearbyPOIs(params) {
+  const nearbyPlaces = await db.Place.find({
+    location: {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [
+            parseFloat(params.longitude),
+            parseFloat(params.latitude),
+          ],
+        },
+
+        $maxDistance: 300,
+      },
+    },
+
+    approved: true,
+    isPrivate: { $ne: true },
+  }).limit(20);
+
+  return {
+    status: "SUCCESS",
+
+    data: nearbyPlaces.map((place) => ({
+      id: place._id,
+      lat: place.location.coordinates[1],
+      lng: place.location.coordinates[0],
+    })),
   };
 }
 
