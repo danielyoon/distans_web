@@ -646,19 +646,19 @@ async function findNearbyPlace(longitude, latitude) {
   const results = await db.Place.aggregate([
     {
       $geoNear: {
+        key: "location",
         near: {
           type: "Point",
           coordinates: [longitude, latitude],
         },
         distanceField: "distance",
-        maxDistance: 75,
         spherical: true,
+        maxDistance: 75,
         query: {
           approved: true,
         },
       },
     },
-
     {
       $limit: 2,
     },
@@ -666,20 +666,14 @@ async function findNearbyPlace(longitude, latitude) {
 
   console.log(results);
 
-  if (!results.length) {
-    return null;
-  }
+  if (!results.length) return null;
 
   const closest = results[0];
   const second = results[1];
 
-  if (closest.distance > 40) {
-    return null;
-  }
+  if (closest.distance > 40) return null;
 
-  if (second && second.distance - closest.distance < 10) {
-    return null;
-  }
+  if (second && second.distance - closest.distance < 10) return null;
 
   return closest;
 }
