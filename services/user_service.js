@@ -644,6 +644,8 @@ function randomTokenString(number) {
 
 //TODO: Need to console log here to find out where this function works.
 async function findNearbyPlace(longitude, latitude) {
+  console.log(longitude, latitude);
+
   const results = await db.Place.aggregate([
     {
       $geoNear: {
