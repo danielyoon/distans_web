@@ -643,23 +643,45 @@ function randomTokenString(number) {
 }
 
 async function findNearbyPlace(longitude, latitude) {
-  const nearbyPlaces = await db.Place.find({
-    location: {
-      $geoWithin: {
-        $centerSphere: [[longitude, latitude], 75 / 6378137],
+  const results = await db.Place.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [longitude, latitude],
+        },
+        distanceField: "distance",
+        maxDistance: 75,
+        spherical: true,
+        query: {
+          approved: true,
+        },
       },
     },
-    approved: true,
-    isPrivate: { $ne: true },
-  }).limit(5);
 
-  console.log(nearbyPlaces);
+    {
+      $limit: 2,
+    },
+  ]);
 
-  if (!nearbyPlaces.length) {
+  console.log(results);
+
+  if (!results.length) {
     return null;
   }
 
-  return nearbyPlaces[0];
+  const closest = results[0];
+  const second = results[1];
+
+  if (closest.distance > 40) {
+    return null;
+  }
+
+  if (second && second.distance - closest.distance < 10) {
+    return null;
+  }
+
+  return closest;
 }
 
 //TODO: Make a more readable HTML structure
