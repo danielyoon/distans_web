@@ -643,6 +643,8 @@ function randomTokenString(number) {
 }
 
 async function findNearbyPlace(longitude, latitude) {
+  console.log("🔥 GEO QUERY VERSION 2026 RUNNING");
+
   const results = await db.Place.aggregate([
     {
       $geoNear: {
@@ -663,7 +665,6 @@ async function findNearbyPlace(longitude, latitude) {
       $limit: 2,
     },
   ]);
-  console.log("🔥 GEO QUERY VERSION 2026 RUNNING");
   console.log(results);
 
   if (!results.length) return null;
