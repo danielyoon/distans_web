@@ -58,111 +58,108 @@ if (process.env.NODE_ENV !== "production") {
 
 async function checkIn(params) {
   try {
-    // Retrieve refresh token and associated user
     const refreshToken = await getRefreshToken(params.token);
     const user = refreshToken.user;
+
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
     console.log("New place:");
     console.log(newPlace);
 
-    // Return an error if no user is found
     if (!user) {
       return { status: "ERROR" };
     }
 
-    // Check if a nearby place is found and if it's approved
     if (!newPlace || newPlace.approved == false) {
-      // If no approved place is found, check the user out from their current location
       await checkOut(user._id);
       return { status: CHECK.OUT };
     }
 
-    let checkedInTime = new Date();
-    let isLocationAlwaysOn = user.isLocationAlwaysOn;
-    let isPrivate = newPlace.isPrivate;
+    const checkedInTime = new Date();
+    const isLocationAlwaysOn = user.isLocationAlwaysOn;
+    const isPrivate = newPlace.isPrivate;
 
-    // If the place is private and the user isn't the requester, exit
     if (isPrivate && !newPlace.requestedBy.equals(user._id)) {
       await checkOut(user._id);
       return { status: CHECK.OUT };
     }
 
-    // If the user is already checked into the same location, update their check-in time
-    if (user.currentLocation && user.currentLocation.equals(newPlace._id)) {
-      // Find the user in the checkedInUsers array
-      const userIndex = newPlace.users.findIndex((checkedInUser) =>
-        checkedInUser.user.equals(user._id),
+    const placeId = newPlace._id;
+
+    if (user.currentLocation && user.currentLocation.equals(placeId)) {
+      await db.Place.updateOne(
+        {
+          _id: placeId,
+          "users.user": user._id,
+        },
+        {
+          $set: {
+            "users.$.longStay": true,
+          },
+        },
       );
 
-      if (userIndex !== -1) {
-        // Update the check-in time for this user
-        newPlace.users[userIndex].longStay = true;
-        newPlace.markModified("users");
-
-        await newPlace.save();
-      }
-
-      // Update the user's current location and check-in time
-      user.currentLocation = newPlace._id;
-
-      await user.save();
+      await db.User.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            currentLocation: placeId,
+          },
+        },
+      );
 
       return {
         status: CHECK.IN,
         data: {
-          placeId: newPlace._id,
+          placeId,
           checkedInTime: user.time,
         },
       };
-    } else {
-      // If the user is checked into a different location, check them out first
-      if (user.currentLocation) {
-        await checkOut(user._id);
-      }
-
-      // Add the user to the new place's check-in list
-      newPlace.users.push({
-        user: user._id,
-        checkedInTime,
-        isLocationAlwaysOn,
-        longStay: false,
-      });
-      await newPlace.save();
-
-      // Update the user's check-in history
-      const existingHistory = user.history.find((entry) =>
-        entry.place.equals(newPlace._id),
-      );
-
-      if (existingHistory) {
-        // If the user has checked into this place before, increment the visit count
-        existingHistory.visitCount += 1;
-        existingHistory.time = checkedInTime;
-      } else {
-        // If this is the first visit, add a new entry to the history
-        user.history.push({
-          place: newPlace._id,
-          time: checkedInTime,
-          visitCount: 1,
-        });
-      }
-
-      // Update the user's current location and check-in time
-      user.currentLocation = newPlace._id;
-      user.time = checkedInTime;
-
-      // Add a notification for the check-in event
-      // await addLog(user, "check", newPlace.name, checkedInTime);
-
-      await user.save();
     }
+
+    if (user.currentLocation) {
+      await checkOut(user._id);
+    }
+
+    await db.Place.updateOne(
+      { _id: placeId },
+      {
+        $push: {
+          users: {
+            user: user._id,
+            checkedInTime,
+            isLocationAlwaysOn,
+            longStay: false,
+          },
+        },
+      },
+    );
+
+    const existingHistory = user.history.find((entry) =>
+      entry.place.equals(placeId),
+    );
+
+    if (existingHistory) {
+      existingHistory.visitCount += 1;
+      existingHistory.time = checkedInTime;
+    } else {
+      user.history.push({
+        place: placeId,
+        time: checkedInTime,
+        visitCount: 1,
+      });
+    }
+
+    user.currentLocation = placeId;
+    user.time = checkedInTime;
+
+    await user.save();
 
     return {
       status: CHECK.IN,
       data: {
-        placeId: newPlace._id,
-        checkedInTime: checkedInTime,
+        placeId,
+        checkedInTime,
       },
     };
   } catch (error) {
@@ -643,8 +640,6 @@ function randomTokenString(number) {
 }
 
 async function findNearbyPlace(longitude, latitude) {
-  console.log("🔥 GEO QUERY VERSION 2026+1 RUNNING");
-
   const results = await db.Place.aggregate([
     {
       $geoNear: {
@@ -663,8 +658,6 @@ async function findNearbyPlace(longitude, latitude) {
     },
     { $limit: 2 },
   ]);
-
-  console.log("RESULTS:", results);
 
   if (!results.length) return null;
 
