@@ -63,9 +63,6 @@ async function checkIn(params) {
     const user = refreshToken.user;
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
-    console.log("New place:");
-    console.log(newPlace);
-
     // Return an error if no user is found
     if (!user) {
       return { status: "ERROR" };
@@ -642,51 +639,22 @@ function randomTokenString(number) {
   return crypto.randomBytes(number).toString("hex");
 }
 
-//TODO: Need to console log here to find out where this function works.
 async function findNearbyPlace(longitude, latitude) {
-  console.log(longitude, latitude);
-
-  const results = await db.Place.aggregate([
-    {
-      $geoNear: {
-        near: {
-          type: "Point",
-          coordinates: [parseFloat(longitude), parseFloat(latitude)],
-        },
-        distanceField: "distance",
-        spherical: true,
-        query: {
-          approved: true,
-          isPrivate: { $ne: true },
-        },
-        maxDistance: 75,
+  const nearbyPlaces = await db.Place.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [[longitude, latitude], 75 / 6378137],
       },
     },
-    { $limit: 2 },
-  ]);
+    approved: true,
+    isPrivate: { $ne: true },
+  }).limit(5);
 
-  console.log("Results:");
-  console.log(results);
-
-  if (!results.length) return null;
-
-  const closest = results[0];
-  const second = results[1];
-
-  const CLOSE_THRESHOLD = 40;
-  const AMBIGUITY_GAP = 10;
-
-  // too far from any venue
-  if (closest.distance > CLOSE_THRESHOLD) {
+  if (!nearbyPlaces.length) {
     return null;
   }
 
-  // ambiguous between two venues
-  if (second && second.distance - closest.distance < AMBIGUITY_GAP) {
-    return null;
-  }
-
-  return closest;
+  return nearbyPlaces[0];
 }
 
 //TODO: Make a more readable HTML structure
