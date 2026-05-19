@@ -663,7 +663,7 @@ async function findNearbyPlace(longitude, latitude) {
       $limit: 2,
     },
   ]);
-
+  console.log("🔥 GEO QUERY VERSION 2026 RUNNING");
   console.log(results);
 
   if (!results.length) return null;
