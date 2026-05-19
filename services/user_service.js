@@ -63,6 +63,9 @@ async function checkIn(params) {
     const user = refreshToken.user;
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
+    console.log("New place:");
+    console.log(newPlace);
+
     // Return an error if no user is found
     if (!user) {
       return { status: "ERROR" };
@@ -639,6 +642,7 @@ function randomTokenString(number) {
   return crypto.randomBytes(number).toString("hex");
 }
 
+//TODO: Need to console log here to find out where this function works.
 async function findNearbyPlace(longitude, latitude) {
   const results = await db.Place.aggregate([
     {
@@ -658,6 +662,9 @@ async function findNearbyPlace(longitude, latitude) {
     },
     { $limit: 2 },
   ]);
+
+  console.log("Results:");
+  console.log(results);
 
   if (!results.length) return null;
 
