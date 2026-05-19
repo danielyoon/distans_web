@@ -643,7 +643,7 @@ function randomTokenString(number) {
 }
 
 async function findNearbyPlace(longitude, latitude) {
-  console.log("🔥 GEO QUERY VERSION 2026 RUNNING");
+  console.log("🔥 GEO QUERY VERSION 2026+1 RUNNING");
 
   const results = await db.Place.aggregate([
     {
@@ -651,7 +651,7 @@ async function findNearbyPlace(longitude, latitude) {
         key: "location",
         near: {
           type: "Point",
-          coordinates: [longitude, latitude],
+          coordinates: [Number(longitude), Number(latitude)],
         },
         distanceField: "distance",
         spherical: true,
@@ -661,11 +661,10 @@ async function findNearbyPlace(longitude, latitude) {
         },
       },
     },
-    {
-      $limit: 2,
-    },
+    { $limit: 2 },
   ]);
-  console.log(results);
+
+  console.log("RESULTS:", results);
 
   if (!results.length) return null;
 
