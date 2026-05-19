@@ -63,6 +63,9 @@ async function checkIn(params) {
     const user = refreshToken.user;
     const newPlace = await findNearbyPlace(params.longitude, params.latitude);
 
+    console.log("New place:");
+    console.log(newPlace);
+
     // Return an error if no user is found
     if (!user) {
       return { status: "ERROR" };
@@ -649,6 +652,8 @@ async function findNearbyPlace(longitude, latitude) {
     approved: true,
     isPrivate: { $ne: true },
   }).limit(5);
+
+  console.log(nearbyPlaces);
 
   if (!nearbyPlaces.length) {
     return null;
